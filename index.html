@@ -46,11 +46,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 40px;display:fl
 .stat-num{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--black);line-height:1;}
 .stat-num span{font-size:18px;color:var(--gold);}
 .stat-label{font-size:9px;letter-spacing:2px;color:var(--grey);text-transform:uppercase;margin-top:4px;}
-.trust-section{background:var(--black);padding:48px 20px;}
-.trust-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:700px;margin:0 auto;text-align:center;}
-.trust-item-icon{font-size:28px;margin-bottom:10px;}
-.trust-item-title{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--white);font-weight:600;margin-bottom:4px;}
-.trust-item-sub{font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1px;}
 .section{padding:72px 20px;}
 .section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,5vw,52px);font-weight:300;text-align:center;color:var(--black);margin-bottom:12px;line-height:1.1;}
 .section-title em{font-style:italic;color:var(--gold);}
@@ -106,10 +101,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 40px;display:fl
 .btn-full{width:100%;padding:13px;background:var(--gold);color:var(--white);border:none;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-weight:600;}
 .btn-full:hover{background:var(--gold-light);}
 .btn-full.secondary{background:transparent;color:var(--gold);border:1px solid var(--gold);}
-.cart-drawer{position:fixed;right:0;bottom:0;width:min(400px,100vw);max-height:90vh;background:var(--white);z-index:210;transform:translateX(100%);transition:transform 0.3s;overflow-y:auto;border-top:1px solid var(--grey-light);border-left:1px solid var(--grey-light);}
-.cart-drawer.open{transform:translateX(0);}
-.cart-header{padding:18px 20px;border-bottom:1px solid var(--grey-light);display:flex;justify-content:space-between;align-items:center;}
-.cart-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;}
 .cart-items{padding:16px 20px;}
 .cart-empty{text-align:center;padding:40px 20px;color:var(--grey);}
 .cart-item{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:0.5px solid var(--grey-light);}
@@ -153,15 +144,7 @@ footer{background:var(--black);color:var(--white);padding:60px 20px 30px;}
 .wa-float:hover{transform:scale(1.1);}
 .wa-float svg{width:30px;height:30px;}
 .loading{text-align:center;padding:60px 20px;color:var(--grey);grid-column:1/-1;}
-@media(min-width:768px){
-  nav{padding:24px 64px;}
-  .trust-grid{grid-template-columns:repeat(4,1fr);}
-  .product-grid{grid-template-columns:repeat(3,1fr);}
-  .reviews-grid{grid-template-columns:repeat(3,1fr);}
-  .delivery-grid{grid-template-columns:repeat(3,1fr);}
-  .footer-grid{grid-template-columns:repeat(3,1fr);}
-  .product-img{height:240px;}
-}
+@media(min-width:768px){nav{padding:24px 64px;}.product-grid{grid-template-columns:repeat(3,1fr);}.reviews-grid{grid-template-columns:repeat(3,1fr);}.delivery-grid{grid-template-columns:repeat(3,1fr);}.footer-grid{grid-template-columns:repeat(3,1fr);}.product-img{height:240px;}}
 @media(min-width:1024px){.product-grid{grid-template-columns:repeat(4,1fr);}}
 </style>
 </head>
@@ -192,11 +175,7 @@ footer{background:var(--black);color:var(--white);padding:60px 20px 30px;}
     <span style="font-family:'Playfair Display',serif;font-style:italic;font-weight:400;color:var(--gold);font-size:clamp(52px,10vw,110px);line-height:1;">El</span><span style="font-family:'Playfair Display',serif;font-style:normal;font-weight:400;color:var(--black);font-size:clamp(52px,10vw,110px);letter-spacing:3px;line-height:1;">bnam</span>
   </div>
   <div class="hero-subtitle">Curated for the Discerning</div>
-  <div class="hero-divider">
-    <div class="hero-divider-line"></div>
-    <div class="hero-divider-diamond"></div>
-    <div class="hero-divider-line"></div>
-  </div>
+  <div class="hero-divider"><div class="hero-divider-line"></div><div class="hero-divider-diamond"></div><div class="hero-divider-line"></div></div>
   <p class="hero-desc">From everyday elegance to festive grandeur — Elbnam brings you handcrafted Pakistani clothing made with premium fabrics and timeless designs.</p>
   <div class="hero-btns">
     <button class="btn-gold" onclick="scrollToProducts()">Shop Collection</button>
@@ -286,16 +265,6 @@ footer{background:var(--black);color:var(--white);padding:60px 20px 30px;}
   <a href="https://instagram.com/" target="_blank" style="display:inline-flex;align-items:center;gap:10px;background:var(--black);color:var(--white);padding:14px 32px;font-size:10px;letter-spacing:3px;text-transform:uppercase;text-decoration:none;">📸 Follow @elbnam</a>
 </div>
 
-<!-- Trust signals moved to bottom -->
-<div class="trust-section">
-  <div class="trust-grid">
-    <div class="trust-item"><div class="trust-item-icon">🚚</div><div class="trust-item-title">Fast Delivery</div><div class="trust-item-sub">Lahore &amp; across Pakistan</div></div>
-    <div class="trust-item"><div class="trust-item-icon">🔄</div><div class="trust-item-title">Easy Exchange</div><div class="trust-item-sub">7-day exchange policy</div></div>
-    <div class="trust-item"><div class="trust-item-icon">💎</div><div class="trust-item-title">Premium Fabrics</div><div class="trust-item-sub">Carefully sourced materials</div></div>
-    <div class="trust-item"><div class="trust-item-icon">✅</div><div class="trust-item-title">Verified Quality</div><div class="trust-item-sub">100% quality checked</div></div>
-  </div>
-</div>
-
 <footer>
   <div style="margin-bottom:28px;"><span style="font-family:'Playfair Display',serif;font-style:italic;font-weight:400;font-size:32px;color:var(--gold);">El</span><span style="font-family:'Playfair Display',serif;font-style:normal;font-weight:400;font-size:32px;color:var(--white);letter-spacing:2px;">bnam</span></div>
   <div class="footer-grid">
@@ -315,14 +284,8 @@ footer{background:var(--black);color:var(--white);padding:60px 20px 30px;}
     <div class="detail-cat" id="panelProductCat"></div>
     <div class="detail-price" id="panelProductPrice"></div>
     <div style="margin:18px 0;"><label class="size-label">Select Size</label><div class="size-buttons" id="sizeWrap"></div></div>
-    <div style="border-top:1px solid var(--grey-light);padding-top:16px;">
-      <label style="display:block;font-size:11px;font-weight:600;color:var(--black);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase;">Quantity</label>
-      <div class="qty-control"><button class="qty-btn" onclick="changeQty(-1)">−</button><span id="qtyNum">1</span><button class="qty-btn" onclick="changeQty(1)">+</button></div>
-    </div>
-    <div class="action-buttons">
-      <button class="btn-full" id="addToCartBtn" onclick="addToCart()">Add to Cart</button>
-      <button class="btn-full secondary" onclick="orderNowWhatsApp()">Order via WhatsApp</button>
-    </div>
+    <div style="border-top:1px solid var(--grey-light);padding-top:16px;"><label style="display:block;font-size:11px;font-weight:600;color:var(--black);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase;">Quantity</label><div class="qty-control"><button class="qty-btn" onclick="changeQty(-1)">−</button><span id="qtyNum">1</span><button class="qty-btn" onclick="changeQty(1)">+</button></div></div>
+    <div class="action-buttons"><button class="btn-full" id="addToCartBtn" onclick="addToCart()">Add to Cart</button><button class="btn-full secondary" onclick="orderNowWhatsApp()">Order via WhatsApp</button></div>
   </div>
 </div>
 
@@ -333,10 +296,7 @@ footer{background:var(--black);color:var(--white);padding:60px 20px 30px;}
     <div id="cartItems"></div>
     <div id="cartFooter" style="display:none;">
       <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:600;margin:20px 0;padding-top:16px;border-top:1px solid var(--grey-light);"><span>Total:</span><span id="cartTotal" style="color:var(--gold);"></span></div>
-      <div class="action-buttons">
-        <button class="btn-full" onclick="openCheckoutForm()">Proceed to Checkout</button>
-        <button class="btn-full secondary" onclick="checkoutWhatsApp()">Checkout via WhatsApp</button>
-      </div>
+      <div class="action-buttons"><button class="btn-full" onclick="openCheckoutForm()">Proceed to Checkout</button><button class="btn-full secondary" onclick="checkoutWhatsApp()">Checkout via WhatsApp</button></div>
     </div>
   </div>
 </div>
