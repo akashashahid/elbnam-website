@@ -439,6 +439,9 @@ let detailImgs=[],detailImgIdx=0;
 const cardSelectedSizes={};
 const SUBCATEGORIES={mens:['Shirts','Pants','Kurta','Waistcoat','Shalwar Kameez'],kids:['Shirts','Pants','Frocks','Suits','Shalwar Kameez'],festive:['Sherwani','Kurta','Lehenga','Saree','Gharara']};
 
+// Fire-and-forget wake ping so Render spins up before the real fetch
+fetch('https://libas-admin-ssip.onrender.com/api/products').catch(()=>{});
+
 async function loadProducts(retryCount){
   retryCount=retryCount||0;
   const container=document.getElementById('productsContainer');
@@ -452,12 +455,14 @@ async function loadProducts(retryCount){
     renderProducts(allProducts);
     renderCategoryFilter();
   }catch(err){
-    if(retryCount<3){
-      const delay=Math.pow(2,retryCount)*1500;
-      container.innerHTML='<div style="grid-column:1/-1;padding:60px 20px;text-align:center;color:var(--grey);font-size:13px;">Connecting'+(retryCount>0?' (attempt '+(retryCount+1)+')':'')+' — retrying in '+Math.round(delay/1000)+'s…</div>';
+    const maxRetries=7;
+    const delays=[3000,6000,10000,15000,20000,30000,45000];
+    if(retryCount<maxRetries){
+      const delay=delays[retryCount]||30000;
+      container.innerHTML='<div style="grid-column:1/-1;padding:60px 20px;text-align:center;color:var(--grey);font-size:13px;">Connecting'+(retryCount>0?' (attempt '+(retryCount+2)+')':'')+' — retrying in '+Math.round(delay/1000)+'s…<br><span style="font-size:11px;opacity:0.6;">(Server is waking up, this may take up to a minute)</span></div>';
       setTimeout(function(){loadProducts(retryCount+1);},delay);
     }else{
-      container.innerHTML='<div style="grid-column:1/-1;padding:60px 20px;text-align:center;"><div style="font-size:13px;color:var(--grey);margin-bottom:16px;">Could not load products</div><button onclick="loadProducts(0)" style="padding:10px 24px;background:var(--gold);color:#fff;border:none;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">Try Again</button></div>';
+      container.innerHTML='<div style="grid-column:1/-1;padding:60px 20px;text-align:center;"><div style="font-size:13px;color:var(--grey);margin-bottom:16px;">Could not load products. Please check your connection.</div><button onclick="loadProducts(0)" style="padding:10px 24px;background:var(--gold);color:#fff;border:none;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">Try Again</button></div>';
     }
   }
 }
@@ -513,11 +518,11 @@ function renderProducts(products){
       </div>
       <div class="product-info">
         <div class="product-cat">${p.category}</div>
-        <div class="product-name" onclick="${oos?'':'openDetailPage(\''+p._id+'\')"}">${p.name}</div>
+        <div class="product-name" onclick="${oos?'':'openDetailPage(\''+p._id+'\')"}'>${p.name}</div>
         <div class="product-price">PKR ${p.price.toLocaleString()}${p.originalPrice?`<del>PKR ${p.originalPrice.toLocaleString()}</del>`:''}</div>
         ${sizeBtns?`<div class="card-size-row">${sizeBtns}</div>`:''}
         <div class="product-line"></div>
-        <button class="card-atc-btn" ${oos?'disabled':''} onclick="${oos?'':'cardAddToCart(\''+p._id+'\')"}">${oos?'Out of Stock':'Add to Cart'}</button>
+        <button class="card-atc-btn" ${oos?'disabled':''} onclick="${oos?'':'cardAddToCart(\''+p._id+'\')"}'>${oos?'Out of Stock':'Add to Cart'}</button>
       </div>
     </div>`;
   }).join('');
@@ -575,7 +580,7 @@ function openDetailPage(id){
   }else{thumbsEl.innerHTML='';thumbsEl.style.display='none';}
   document.getElementById('detailCat').textContent=currentProduct.category.toUpperCase()+(currentProduct.subcategory?' · '+currentProduct.subcategory.toUpperCase():'');
   document.getElementById('detailName').textContent=currentProduct.name;
-  document.getElementById('detailPrice').innerHTML=`PKR ${currentProduct.price.toLocaleString()}${currentProduct.originalPrice?`<del>PKR ${currentProduct.originalPrice.toLocaleString()}</del>`:'}`;
+  document.getElementById('detailPrice').innerHTML=`PKR ${currentProduct.price.toLocaleString()}${currentProduct.originalPrice?`<del>PKR ${currentProduct.originalPrice.toLocaleString()}</del>`:'}'`;
   document.getElementById('detailQtyNum').textContent='1';
   const sw=document.getElementById('detailSizeWrap');
   sw.innerHTML='';
