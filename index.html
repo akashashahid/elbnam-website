@@ -518,11 +518,11 @@ function renderProducts(products){
       </div>
       <div class="product-info">
         <div class="product-cat">${p.category}</div>
-        <div class="product-name" onclick="${oos?'':'openDetailPage(\'' + p._id + '\')''}">${p.name}</div>
+        <div class="product-name" onclick="${oos?'':'openDetailPage(\'' + p._id + '\')"}">${p.name}</div>
         <div class="product-price">PKR ${p.price.toLocaleString()}${p.originalPrice?`<del>PKR ${p.originalPrice.toLocaleString()}</del>`:''}</div>
         ${sizeBtns?`<div class="card-size-row">${sizeBtns}</div>`:''}
         <div class="product-line"></div>
-        <button class="card-atc-btn" ${oos?'disabled':''} onclick="${oos?'':'cardAddToCart(\'' + p._id + '\')''}">${oos?'Out of Stock':'Add to Cart'}</button>
+        <button class="card-atc-btn" ${oos?'disabled':''} onclick="${oos?'':'cardAddToCart(\'' + p._id + '\')'}">${oos?'Out of Stock':'Add to Cart'}</button>
       </div>
     </div>`;
   }).join('');
