@@ -499,37 +499,47 @@ function applyFilter(){
 }
 
 function renderProducts(products){
-  const c=document.getElementById('productsContainer');
+  var c=document.getElementById('productsContainer');
   if(!products.length){c.innerHTML='<div class="loading">No products found</div>';return;}
-  c.innerHTML=products.map(p=>{
-    const oos=!p.inStock;
-    const id=p._id;
-    const stockMap=p.sizeStock||{};
-    const clickFn=oos?'':'openDetailPage("'+id+'")';
-    const sizeBtns=p.sizes&&p.sizes.length?p.sizes.map(s=>{
-      const qty=stockMap[s]!=null?stockMap[s]:null;
-      const sOos=qty!==null&&qty===0;
-      const isSel=(cardSelectedSizes[id]===s);
-      const dis=sOos||oos?'disabled':'';
-      return '<button class="card-size-btn'+(isSel?' sel':'')'" '+dis+' onclick="selectCardSize(\''+id+'\',\''+s+'\',this)">'+s+'</button>';
-    }).join(''):'';
-    let html='<div class="product-card" style="'+(oos?'opacity:0.85;':'')'">';
-    html+='<div class="product-img" onclick="'+clickFn+'" style="cursor:'+(oos?'default':'pointer')+';">';
-    if(p.label&&!oos) html+='<div class="product-label '+p.label.toLowerCase()+'">'+p.label+'</div>';
-    if(oos) html+='<div style="position:absolute;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:2;"><span style="background:#e53935;color:#fff;font-size:9px;letter-spacing:2px;padding:5px 14px;text-transform:uppercase;">Out of Stock</span></div>';
-    html+='<img src="'+p.image+'" alt="'+p.name+'" onclick="'+clickFn+'">';
-    html+='</div>';
-    html+='<div class="product-info">';
-    html+='<div class="product-cat">'+p.category+'</div>';
-    html+='<div class="product-name" onclick="'+clickFn+'">'+p.name+'</div>';
-    let price='PKR '+p.price.toLocaleString();
+  c.innerHTML=products.map(function(p){
+    var oos=!p.inStock;
+    var id=p._id;
+    var stockMap=p.sizeStock||{};
+    var clickFn=oos?'':'openDetailPage("'+id+'")';
+    var sizeBtns='';
+    if(p.sizes&&p.sizes.length){
+      sizeBtns=p.sizes.map(function(s){
+        var qty=stockMap[s]!=null?stockMap[s]:null;
+        var sOos=qty!==null&&qty===0;
+        var isSel=(cardSelectedSizes[id]===s);
+        var dis=(sOos||oos)?'disabled':'';
+        return '<button class="card-size-btn'+(isSel?' sel':'')+'" '+dis+' onclick="selectCardSize(\''+id+'\',\''+s+'\',this)">'+s+'</button>';
+      }).join('');
+    }
+    var label='';
+    if(p.label&&!oos) label='<div class="product-label '+p.label.toLowerCase()+'">'+p.label+'</div>';
+    var oosOverlay='';
+    if(oos) oosOverlay='<div style="position:absolute;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:2;"><span style="background:#e53935;color:#fff;font-size:9px;letter-spacing:2px;padding:5px 14px;text-transform:uppercase;">Out of Stock</span></div>';
+    var price='PKR '+p.price.toLocaleString();
     if(p.originalPrice) price+=' <del>PKR '+p.originalPrice.toLocaleString()+'</del>';
-    html+='<div class="product-price">'+price+'</div>';
-    if(sizeBtns) html+='<div class="card-size-row">'+sizeBtns+'</div>';
-    html+='<div class="product-line"></div>';
-    html+='<button class="card-atc-btn" '+(oos?'disabled':'')+' onclick="'+(oos?'':'cardAddToCart("'+id+'")')+'">'+( oos?'Out of Stock':'Add to Cart')+'</button>';
-    html+='</div></div>';
-    return html;
+    var sizeRow=sizeBtns?'<div class="card-size-row">'+sizeBtns+'</div>':'';
+    var atcOnclick=oos?'':'cardAddToCart("'+id+'")';
+    var atcText=oos?'Out of Stock':'Add to Cart';
+    var atcDis=oos?'disabled':'';
+    return '<div class="product-card" style="'+(oos?'opacity:0.85;':'')+'">'
+      +'<div class="product-img" onclick="'+clickFn+'" style="cursor:'+(oos?'default':'pointer')+';">')
+      +label+oosOverlay
+      +'<img src="'+p.image+'" alt="'+p.name+'" onclick="'+clickFn+'">'
+      +'</div>'
+      +'<div class="product-info">'
+      +'<div class="product-cat">'+p.category+'</div>'
+      +'<div class="product-name" onclick="'+clickFn+'">'+p.name+'</div>'
+      +'<div class="product-price">'+price+'</div>'
+      +sizeRow
+      +'<div class="product-line"></div>'
+      +'<button class="card-atc-btn" '+atcDis+' onclick="'+atcOnclick+'">'+atcText+'</button>'
+      +'</div>'
+      +'</div>';
   }).join('');
 }
 
