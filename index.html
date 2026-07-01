@@ -513,7 +513,8 @@ function renderProducts(products){
         var sOos=qty!==null&&qty===0;
         var isSel=(cardSelectedSizes[id]===s);
         var dis=(sOos||oos)?'disabled':'';
-        return '<button class="card-size-btn'+(isSel?' sel':'')'" '+dis+' onclick="selectCardSize(\''+id+'\',\''+s+'\',this)">'+s+'</button>';
+        var btnCls='card-size-btn'+(isSel?' sel':'');
+        return '<button class="'+btnCls+'" '+dis+' onclick="selectCardSize(\''+id+'\',\''+s+'\',this)">'+s+'</button>';
       }).join('');
     }
     var label='';
@@ -527,7 +528,7 @@ function renderProducts(products){
     var atcText=oos?'Out of Stock':'Add to Cart';
     var atcDis=oos?'disabled':'';
     return '<div class="product-card" style="'+(oos?'opacity:0.85;':'')+'">'
-      +'<div class="product-img" onclick="'+clickFn+'" style="cursor:'+(oos?'default':'pointer')+';">')
+      +'<div class="product-img" onclick="'+clickFn+'" style="cursor:'+(oos?'default':'pointer')+';">'  
       +label+oosOverlay
       +'<img src="'+p.image+'" alt="'+p.name+'" onclick="'+clickFn+'">'
       +'</div>'
