@@ -63,7 +63,7 @@ function renderProducts(products){
     var oos=!p.inStock;
     var id=p._id;
     var stockMap=p.sizeStock||{};
-    var clickFn=oos?'':'openDetailPage("'+id+'")';
+    var clickFn=oos?'':"openDetailPage('"+id+"')";
     var sizeBtns='';
     if(p.sizes&&p.sizes.length){
       sizeBtns=p.sizes.map(function(s){
@@ -82,7 +82,7 @@ function renderProducts(products){
     var price='PKR '+p.price.toLocaleString();
     if(p.originalPrice) price+=' <del>PKR '+p.originalPrice.toLocaleString()+'</del>';
     var sizeRow=sizeBtns?'<div class="card-size-row">'+sizeBtns+'</div>':'';
-    var atcOnclick=oos?'':'cardAddToCart("'+id+'")';
+    var atcOnclick=oos?'':"cardAddToCart('"+id+"')";
     var atcText=oos?'Out of Stock':'Add to Cart';
     var atcDis=oos?'disabled':'';
     return '<div class="product-card" style="'+(oos?'opacity:0.85;':'')+'">'
