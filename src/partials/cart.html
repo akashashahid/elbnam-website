@@ -1,0 +1,12 @@
+<!-- ===== CART ===== -->
+<div id="cartOverlay" class="panel-overlay" onclick="closeCart()" style="z-index:209;"></div>
+<div id="cartDrawer" class="side-panel" style="z-index:210;">
+  <div class="panel-header"><div class="panel-title">Your Cart</div><button class="panel-close" onclick="closeCart()">✕</button></div>
+  <div class="panel-body" style="padding:16px 20px;">
+    <div id="cartItems"></div>
+    <div id="cartFooter" style="display:none;">
+      <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:600;margin:20px 0;padding-top:16px;border-top:1px solid var(--grey-light);"><span>Total:</span><span id="cartTotal" style="color:var(--gold);"></span></div>
+      <div style="display:flex;flex-direction:column;gap:10px;"><button class="btn-full" onclick="openCheckoutPage()">Proceed to Checkout</button><button class="btn-full secondary" onclick="checkoutWhatsApp()">Checkout via WhatsApp</button></div>
+    </div>
+  </div>
+</div>

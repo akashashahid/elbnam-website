@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "engines": { "node": "20.x" },
+  "scripts": {
+    "build": "node build.js"
+  },
   "dependencies": {
     "cloudinary": "^2.10.0",
     "mongoose": "^9.6.2",

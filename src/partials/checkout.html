@@ -1,0 +1,29 @@
+<!-- ===== CHECKOUT PAGE ===== -->
+<div id="checkoutPage" class="checkout-page">
+  <div class="checkout-nav">
+    <button class="detail-back-btn" onclick="closeCheckout();openCart()">← Back to Cart</button>
+    <div class="checkout-nav-title">Checkout</div>
+  </div>
+  <div class="checkout-grid">
+    <div>
+      <div class="co-box">
+        <div class="co-section-title">Order Summary</div>
+        <div id="checkoutItems"></div>
+        <div class="co-total-row"><span>Total</span><span id="checkoutTotal" style="color:var(--gold);"></span></div>
+      </div>
+    </div>
+    <div>
+      <div class="co-box">
+        <div class="co-section-title">Your Information</div>
+        <div class="co-form-field"><label>Full Name *</label><input id="coName" type="text" placeholder="e.g. Ahmed Khan"></div>
+        <div class="co-form-field"><label>Phone Number *</label><input id="coPhone" type="tel" placeholder="e.g. 0310 1234567"></div>
+        <div class="co-form-field"><label>Delivery Address *</label><textarea id="coAddress" placeholder="House/Flat no, Street, Area, City" style="height:80px;resize:none;"></textarea></div>
+        <div class="co-form-field"><label>Email Address <span style="color:var(--grey-light);font-size:9px;">(for order confirmation)</span></label><input id="coEmail" type="email" placeholder="e.g. you@example.com"></div>
+        <div class="co-section-title" style="margin-top:20px;">Payment Method</div>
+        <div class="co-payment">💵 Cash on Delivery (COD)</div>
+        <button class="btn-full" id="placeOrderBtn" onclick="placeOrder()">Place Order</button>
+        <p style="font-size:10px;color:var(--grey);text-align:center;margin-top:12px;">Our team will confirm your order via WhatsApp</p>
+      </div>
+    </div>
+  </div>
+</div>
