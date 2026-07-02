@@ -63,6 +63,7 @@ function renderProducts(products){
     var oos=!p.inStock;
     var id=p._id;
     var stockMap=p.sizeStock||{};
+    var rawImg=(p.images&&p.images.length)?p.images[0]:(p.image||'');
     var clickFn=oos?'':"openDetailPage('"+id+"')";
     var sizeBtns='';
     if(p.sizes&&p.sizes.length){
@@ -88,7 +89,7 @@ function renderProducts(products){
     return '<div class="product-card" style="'+(oos?'opacity:0.85;':'')+'">'
       +'<div class="product-img" onclick="'+clickFn+'" style="cursor:'+(oos?'default':'pointer')+';">'
       +label+oosOverlay
-      +'<img src="'+cloudinaryEnhance(p.image)+'" alt="'+p.name+'" onclick="'+clickFn+'">'
+      +'<img src="'+cloudinaryEnhance(rawImg)+'" alt="'+p.name+'" onclick="'+clickFn+'" onerror="this.onerror=null;this.src=\''+rawImg+'\'">'
       +'</div>'
       +'<div class="product-info">'
       +'<div class="product-cat">'+p.category+'</div>'
@@ -140,8 +141,10 @@ function openDetailPage(id){
   selectedSize=null;currentQty=1;
   detailImgs=currentProduct.images&&currentProduct.images.length?currentProduct.images:(currentProduct.image?[currentProduct.image]:[]);
   detailImgIdx=0;
-  document.getElementById('detailMainImg').src=detailImgs[0]||'';
-  document.getElementById('detailMainImg').alt=currentProduct.name;
+  var _dm=document.getElementById('detailMainImg');
+  _dm.onerror=function(){_dm.onerror=null;_dm.src=detailImgs[0]||'';};
+  _dm.src=cloudinaryEnhance(detailImgs[0]||'');
+  _dm.alt=currentProduct.name;
   const prevBtn=document.getElementById('detailPrevBtn'),nextBtn=document.getElementById('detailNextBtn');
   if(detailImgs.length>1){prevBtn.style.display='flex';nextBtn.style.display='flex';}
   else{prevBtn.style.display='none';nextBtn.style.display='none';}
@@ -187,7 +190,9 @@ function closeDetailPage(){
 
 function setDetailImg(idx){
   detailImgIdx=idx;
-  document.getElementById('detailMainImg').src=detailImgs[idx];
+  var m=document.getElementById('detailMainImg');
+  m.onerror=function(){m.onerror=null;m.src=detailImgs[idx];};
+  m.src=cloudinaryEnhance(detailImgs[idx]);
   document.querySelectorAll('.detail-thumb').forEach((t,i)=>t.classList.toggle('active',i===idx));
 }
 
