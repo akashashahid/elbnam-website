@@ -1,0 +1,35 @@
+<!-- ===== DETAIL PAGE ===== -->
+<div id="detailPage" class="detail-page">
+  <div class="detail-nav">
+    <button class="detail-back-btn" onclick="closeDetailPage()">← Back</button>
+    <a href="#" class="detail-nav-brand"><span style="font-family:'Playfair Display',serif;font-style:italic;color:var(--gold);font-size:22px;">El</span><span style="font-family:'Playfair Display',serif;color:var(--black);font-size:22px;letter-spacing:2px;">bnam</span></a>
+    <button class="detail-nav-cart" onclick="closeDetailPage();openCart()">🛒 <span class="cart-count-badge" id="detailCartCount">0</span></button>
+  </div>
+  <div class="detail-grid">
+    <div class="detail-images">
+      <div class="detail-img-wrap">
+        <img id="detailMainImg" src="" alt="">
+        <button class="img-arrow prev" id="detailPrevBtn" onclick="prevDetailImg()" style="display:none;">&#8249;</button>
+        <button class="img-arrow next" id="detailNextBtn" onclick="nextDetailImg()" style="display:none;">&#8250;</button>
+      </div>
+      <div class="detail-thumbs" id="detailThumbs"></div>
+    </div>
+    <div class="detail-info">
+      <div class="detail-cat" id="detailCat"></div>
+      <div class="detail-name" id="detailName"></div>
+      <div class="detail-price" id="detailPrice"></div>
+      <label class="size-label">Select Size</label>
+      <div class="size-buttons" id="detailSizeWrap"></div>
+      <label style="font-size:10px;font-weight:600;color:var(--black);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:8px;">Quantity</label>
+      <div class="qty-control">
+        <button class="qty-btn" onclick="detailChangeQty(-1)">−</button>
+        <span id="detailQtyNum">1</span>
+        <button class="qty-btn" onclick="detailChangeQty(1)">+</button>
+      </div>
+      <div class="detail-action-btns">
+        <button class="btn-full" id="detailAddCartBtn" onclick="detailAddToCart()">Add to Cart</button>
+        <button class="btn-full secondary" onclick="detailOrderWhatsApp()">Order via WhatsApp</button>
+      </div>
+    </div>
+  </div>
+</div>
