@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elbnam — Premium Pakistani Clothing | Lahore</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230a0a0a'/><text x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='20' font-weight='700' fill='%23b8860b'>E</text></svg>">
+<meta name="description" content="Elbnam offers premium handcrafted Pakistani clothing — Men's, Kids' and Festive wear made with quality fabrics. Based in Lahore, Pakistan.">
+<meta name="keywords" content="Pakistani clothing, premium kurta, shalwar kameez, festive wear, kids clothing, Lahore fashion">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Jost:wght@300;400;500;600&family=DM+Mono:ital@0;1&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-brand"><span class="brand-el">El</span><span class="brand-bnam">bnam</span></a>
+  <button class="cart-btn" onclick="openCart()">🛒 <span class="cart-count-badge" id="cartCount">0</span></button>
+</nav>
+
+<div class="marquee-wrap" style="margin-top:78px;">
+  <div class="marquee-track">
+    <div class="marquee-item">✦ Premium Fabrics ✦</div>
+    <div class="marquee-item">✦ Elegant Designs ✦</div>
+    <div class="marquee-item">✦ Fast Delivery ✦</div>
+    <div class="marquee-item">✦ Easy Returns ✦</div>
+    <div class="marquee-item">✦ Premium Fabrics ✦</div>
+    <div class="marquee-item">✦ Elegant Designs ✦</div>
+    <div class="marquee-item">✦ Fast Delivery ✦</div>
+    <div class="marquee-item">✦ Easy Returns ✦</div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-line"></div>
+  <div class="hero-eyebrow">Lahore · Pakistan</div>
+  <div style="margin-bottom:16px;opacity:0;animation:fadeUp 1s ease 0.35s forwards;">
+    <span style="font-family:'Playfair Display',serif;font-style:italic;font-weight:400;color:var(--gold);font-size:clamp(52px,10vw,110px);line-height:1;">El</span><span style="font-family:'Playfair Display',serif;font-style:normal;font-weight:400;color:var(--black);font-size:clamp(52px,10vw,110px);letter-spacing:3px;line-height:1;">bnam</span>
+  </div>
+  <div class="hero-subtitle">Curated for the Discerning</div>
+  <div class="hero-divider"><div class="hero-divider-line"></div><div class="hero-divider-diamond"></div><div class="hero-divider-line"></div></div>
+  <p class="hero-desc">From everyday elegance to festive grandeur — Elbnam brings you handcrafted Pakistani clothing made with premium fabrics and timeless designs.</p>
+  <div class="hero-btns">
+    <button class="btn-gold" onclick="scrollToProducts()">Shop Collection</button>
+    <button class="btn-outline" onclick="window.open('https://wa.me/923104508143','_blank')">WhatsApp Us</button>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num">3<span>+</span></div><div class="stat-label">Collections</div></div>
+    <div class="stat-item"><div class="stat-num" id="productCount">—</div><div class="stat-label">Products</div></div>
+    <div class="stat-item"><div class="stat-num">100<span>%</span></div><div class="stat-label">Premium Quality</div></div>
+  </div>
+</div>
+
+<div class="category-filter" id="categoryFilter">
+  <button class="filter-btn active" onclick="filterByCategory('all',this)">All Products</button>
+  <button class="filter-btn" onclick="filterByCategory('mens',this)">Mens</button>
+  <button class="filter-btn" onclick="filterByCategory('kids',this)">Kids</button>
+  <button class="filter-btn" onclick="filterByCategory('festive',this)">Festive</button>
+</div>
+<div style="display:none;flex-wrap:wrap;gap:8px;justify-content:center;padding:0 20px 16px;" id="subcategoryFilter"></div>
+
+<div class="section" style="background:var(--grey-ultra);">
+  <h2 class="section-title">Featured <em>Products</em></h2>
+  <div id="productsContainer" class="product-grid">
+    <div class="loading" style="grid-column:1/-1;padding:60px 20px;text-align:center;">
+      <div style="width:36px;height:36px;border:3px solid #f0f0f0;border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;"></div>
+      <div style="font-size:13px;color:var(--grey);">Loading products...</div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="background:var(--cream);">
+  <h2 class="section-title">Size <em>Guide</em></h2>
+  <p class="section-sub">Find your perfect fit</p>
+  <div style="overflow-x:auto;">
+    <table class="size-table">
+      <thead><tr><th>Size</th><th>Chest (in)</th><th>Length (in)</th><th>Waist (in)</th></tr></thead>
+      <tbody>
+        <tr><td>S</td><td>36–38</td><td>28–29</td><td>30–32</td></tr>
+        <tr><td>M</td><td>38–40</td><td>29–30</td><td>32–34</td></tr>
+        <tr><td>L</td><td>40–42</td><td>30–31</td><td>34–36</td></tr>
+        <tr><td>XL</td><td>42–44</td><td>31–32</td><td>36–38</td></tr>
+        <tr><td>XXL</td><td>44–46</td><td>32–33</td><td>38–40</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:11px;color:var(--grey);margin-top:14px;text-align:center;">Not sure? <a href="https://wa.me/923104508143" style="color:var(--gold);">WhatsApp us</a> for guidance.</p>
+</div>
+
+<div class="section" style="background:var(--grey-ultra);">
+  <h2 class="section-title">What Our <em>Customers Say</em></h2>
+  <p class="section-sub">Real reviews from real customers</p>
+  <div class="reviews-grid">
+    <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"Best fitting kurta I have ever worn. The fabric quality is exceptional and the stitching is perfect."</p><div class="review-author">— Ahmed K., Lahore</div></div>
+    <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"Ordered festive wear for Eid. The quality exceeded my expectations. Will definitely order again!"</p><div class="review-author">— Sara M., Karachi</div></div>
+    <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"Kids' collection is amazing. My son loved his new outfit. Fast delivery and beautiful packaging!"</p><div class="review-author">— Fatima R., Islamabad</div></div>
+  </div>
+</div>
+
+<div class="brand-story">
+  <div class="brand-story-inner">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:5px;color:var(--gold);text-transform:uppercase;margin-bottom:20px;">Our Story</div>
+    <h2 class="section-title" style="margin-bottom:20px;">Born from a <em>Love of Craft</em></h2>
+    <div style="width:36px;height:1px;background:var(--gold);margin:0 auto 28px;"></div>
+    <p style="font-size:14px;line-height:2;color:var(--grey);margin-bottom:20px;">Elbnam was founded with a simple yet powerful belief — that every Pakistani deserves to wear clothing that reflects their heritage, elegance, and identity.</p>
+    <p style="font-size:14px;line-height:2;color:var(--grey);margin-bottom:32px;">Each piece in our collection is carefully crafted using premium fabrics, ensuring that what you wear is not just clothing — it is an experience.</p>
+    <div class="brand-stats">
+      <div class="brand-stat"><div class="brand-stat-num">100<span>%</span></div><div class="brand-stat-label">Premium Fabrics</div></div>
+      <div class="brand-stat"><div class="brand-stat-num">3<span>+</span></div><div class="brand-stat-label">Collections</div></div>
+      <div class="brand-stat"><div class="brand-stat-num">❤️</div><div class="brand-stat-label">Made with Love</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="delivery-section">
+  <h2 class="section-title" style="color:var(--white);">Delivery &amp; <em>Returns</em></h2>
+  <div class="delivery-grid">
+    <div class="delivery-card"><div class="delivery-icon">🚚</div><h3 class="delivery-title">Delivery Policy</h3><p class="delivery-text">Lahore: 1–2 business days<br>Other cities: 3–5 business days<br>Delivery charges may apply</p></div>
+    <div class="delivery-card"><div class="delivery-icon">🔄</div><h3 class="delivery-title">Exchange Policy</h3><p class="delivery-text">Exchange within 7 days<br>Item must be unworn &amp; unused<br>Original tags must be attached</p></div>
+    <div class="delivery-card"><div class="delivery-icon">💬</div><h3 class="delivery-title">Contact Us</h3><p class="delivery-text">WhatsApp for all queries<br>Order tracking &amp; support<br>Available 9am – 9pm daily</p></div>
+  </div>
+</div>
+
+<div class="insta-section">
+  <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:5px;color:var(--gold);text-transform:uppercase;margin-bottom:14px;">Follow Us</div>
+  <h2 class="section-title" style="margin-bottom:14px;">Find Us on <em>Instagram</em></h2>
+  <p style="font-size:13px;color:var(--grey);margin-bottom:28px;">Stay updated with our latest collections and exclusive offers.</p>
+  <a href="https://instagram.com/" target="_blank" style="display:inline-flex;align-items:center;gap:10px;background:var(--black);color:var(--white);padding:14px 32px;font-size:10px;letter-spacing:3px;text-transform:uppercase;text-decoration:none;">📸 Follow @elbnam</a>
+</div>
+
+<footer>
+  <div style="margin-bottom:28px;"><span style="font-family:'Playfair Display',serif;font-style:italic;font-weight:400;font-size:32px;color:var(--gold);">El</span><span style="font-family:'Playfair Display',serif;font-style:normal;font-weight:400;font-size:32px;color:var(--white);letter-spacing:2px;">bnam</span></div>
+  <div class="footer-grid">
+    <div class="footer-col"><h3>Contact</h3><p>📍 Lahore, Pakistan</p><p>📱 <a href="https://wa.me/923104508143">WhatsApp: +92 310 4508143</a></p></div>
+    <div class="footer-col"><h3>Collections</h3><a href="#">Men's Wear</a><br><a href="#">Kids' Wear</a><br><a href="#">Festive Wear</a></div>
+    <div class="footer-col"><h3>About Us</h3><p>Premium handcrafted Pakistani clothing. Quality fabrics, elegant designs, exceptional service.</p></div>
+  </div>
+  <div class="footer-divider">&copy; 2026 Elbnam — Premium Clothing — All rights reserved<br><span style="font-size:10px;opacity:0.4;margin-top:6px;display:inline-block;">Website developed by <a href="https://quantaip.org/" target="_blank" style="color:rgba(255,255,255,0.5);text-decoration:none;">QUANTAIP</a></span></div>
+</footer>
+
+<!-- ===== DETAIL PAGE ===== -->
+<div id="detailPage" class="detail-page">
+  <div class="detail-nav">
+    <button class="detail-back-btn" onclick="closeDetailPage()">← Back</button>
+    <a href="#" class="detail-nav-brand"><span style="font-family:'Playfair Display',serif;font-style:italic;color:var(--gold);font-size:22px;">El</span><span style="font-family:'Playfair Display',serif;color:var(--black);font-size:22px;letter-spacing:2px;">bnam</span></a>
+    <button class="detail-nav-cart" onclick="closeDetailPage();openCart()">🛒 <span class="cart-count-badge" id="detailCartCount">0</span></button>
+  </div>
+  <div class="detail-grid">
+    <div class="detail-images">
+      <div class="detail-img-wrap">
+        <img id="detailMainImg" src="" alt="">
+        <button class="img-arrow prev" id="detailPrevBtn" onclick="prevDetailImg()" style="display:none;">&#8249;</button>
+        <button class="img-arrow next" id="detailNextBtn" onclick="nextDetailImg()" style="display:none;">&#8250;</button>
+      </div>
+      <div class="detail-thumbs" id="detailThumbs"></div>
+    </div>
+    <div class="detail-info">
+      <div class="detail-cat" id="detailCat"></div>
+      <div class="detail-name" id="detailName"></div>
+      <div class="detail-price" id="detailPrice"></div>
+      <label class="size-label">Select Size</label>
+      <div class="size-buttons" id="detailSizeWrap"></div>
+      <label style="font-size:10px;font-weight:600;color:var(--black);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:8px;">Quantity</label>
+      <div class="qty-control">
+        <button class="qty-btn" onclick="detailChangeQty(-1)">−</button>
+        <span id="detailQtyNum">1</span>
+        <button class="qty-btn" onclick="detailChangeQty(1)">+</button>
+      </div>
+      <div class="detail-action-btns">
+        <button class="btn-full" id="detailAddCartBtn" onclick="detailAddToCart()">Add to Cart</button>
+        <button class="btn-full secondary" onclick="detailOrderWhatsApp()">Order via WhatsApp</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CART ===== -->
+<div id="cartOverlay" class="panel-overlay" onclick="closeCart()" style="z-index:209;"></div>
+<div id="cartDrawer" class="side-panel" style="z-index:210;">
+  <div class="panel-header"><div class="panel-title">Your Cart</div><button class="panel-close" onclick="closeCart()">✕</button></div>
+  <div class="panel-body" style="padding:16px 20px;">
+    <div id="cartItems"></div>
+    <div id="cartFooter" style="display:none;">
+      <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:600;margin:20px 0;padding-top:16px;border-top:1px solid var(--grey-light);"><span>Total:</span><span id="cartTotal" style="color:var(--gold);"></span></div>
+      <div style="display:flex;flex-direction:column;gap:10px;"><button class="btn-full" onclick="openCheckoutPage()">Proceed to Checkout</button><button class="btn-full secondary" onclick="checkoutWhatsApp()">Checkout via WhatsApp</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CHECKOUT PAGE ===== -->
+<div id="checkoutPage" class="checkout-page">
+  <div class="checkout-nav">
+    <button class="detail-back-btn" onclick="closeCheckout();openCart()">← Back to Cart</button>
+    <div class="checkout-nav-title">Checkout</div>
+  </div>
+  <div class="checkout-grid">
+    <div>
+      <div class="co-box">
+        <div class="co-section-title">Order Summary</div>
+        <div id="checkoutItems"></div>
+        <div class="co-total-row"><span>Total</span><span id="checkoutTotal" style="color:var(--gold);"></span></div>
+      </div>
+    </div>
+    <div>
+      <div class="co-box">
+        <div class="co-section-title">Your Information</div>
+        <div class="co-form-field"><label>Full Name *</label><input id="coName" type="text" placeholder="e.g. Ahmed Khan"></div>
+        <div class="co-form-field"><label>Phone Number *</label><input id="coPhone" type="tel" placeholder="e.g. 0310 1234567"></div>
+        <div class="co-form-field"><label>Delivery Address *</label><textarea id="coAddress" placeholder="House/Flat no, Street, Area, City" style="height:80px;resize:none;"></textarea></div>
+        <div class="co-form-field"><label>Email Address <span style="color:var(--grey-light);font-size:9px;">(for order confirmation)</span></label><input id="coEmail" type="email" placeholder="e.g. you@example.com"></div>
+        <div class="co-section-title" style="margin-top:20px;">Payment Method</div>
+        <div class="co-payment">💵 Cash on Delivery (COD)</div>
+        <button class="btn-full" id="placeOrderBtn" onclick="placeOrder()">Place Order</button>
+        <p style="font-size:10px;color:var(--grey);text-align:center;margin-top:12px;">Our team will confirm your order via WhatsApp</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ORDER SUCCESS ===== -->
+<div id="orderSuccess" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;align-items:center;justify-content:center;">
+  <div style="background:var(--white);padding:48px 32px;text-align:center;max-width:340px;width:90%;">
+    <div style="font-size:48px;margin-bottom:16px;">✅</div>
+    <h3 style="font-family:'Cormorant Garamond',serif;font-size:24px;margin-bottom:12px;">Order Placed!</h3>
+    <p style="font-size:13px;color:var(--grey);line-height:1.8;margin-bottom:24px;">Thank you for your order. Our team will contact you on WhatsApp shortly to confirm.</p>
+    <button class="btn-full" onclick="document.getElementById('orderSuccess').style.display='none';">Continue Shopping</button>
+  </div>
+</div>
+
+<a href="https://wa.me/923104508143" target="_blank" class="wa-float">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="white"><path d="M16 0C7.164 0 0 7.163 0 16c0 2.822.736 5.477 2.027 7.789L0 32l8.418-2.004A15.954 15.954 0 0 0 16 32c8.836 0 16-7.163 16-16S24.836 0 16 0zm0 29.333a13.267 13.267 0 0 1-6.747-1.833l-.484-.287-5.004 1.191 1.215-4.873-.316-.501A13.234 13.234 0 0 1 2.667 16C2.667 8.637 8.637 2.667 16 2.667S29.333 8.637 29.333 16 23.363 29.333 16 29.333zm7.27-9.878c-.398-.199-2.352-1.161-2.717-1.293-.364-.133-.629-.199-.894.199-.265.398-1.027 1.293-1.259 1.558-.232.265-.464.298-.862.1-.398-.199-1.681-.619-3.202-1.977-1.183-1.056-1.982-2.36-2.214-2.758-.232-.398-.025-.613.174-.811.179-.178.398-.464.597-.696.199-.232.265-.398.398-.663.133-.265.066-.497-.033-.696-.1-.199-.894-2.154-1.225-2.949-.322-.773-.649-.668-.894-.68l-.762-.013c-.265 0-.696.1-1.061.497-.364.398-1.392 1.359-1.392 3.314 0 1.955 1.425 3.843 1.624 4.108.199.265 2.803 4.279 6.791 5.998.949.41 1.69.654 2.268.838.953.303 1.82.26 2.505.158.764-.114 2.352-.962 2.684-1.89.332-.928.332-1.724.232-1.89-.099-.166-.364-.265-.762-.464z"></path></svg>
+</a>
+
+<!-- Cart added toast -->
+<div class="cart-toast" id="cartToast">✓ Added to Cart</div>
+
+<script src="/js/main.js"></script>
+</body>
+</html>
