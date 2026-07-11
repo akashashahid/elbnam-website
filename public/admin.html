@@ -764,15 +764,23 @@ function removeEditKeepImage(idx) {
   renderEditImgGrid();
 }
 
+let editNewFiles = [];
 function onEditImagesSelected(input) {
+  for (const f of Array.from(input.files)) {
+    if (!editNewFiles.some(x => x.name === f.name && x.size === f.size)) editNewFiles.push(f);
+  }
+  syncEditNewImages();
+}
+function syncEditNewImages() {
+  const dt = new DataTransfer();
+  editNewFiles.forEach(f => dt.items.add(f));
+  document.getElementById('eImage').files = dt.files;
+  renderEditNewPreviews();
+}
+function removeEditNewImage(i) { editNewFiles.splice(i, 1); syncEditNewImages(); }
+function renderEditNewPreviews() {
   const grid = document.getElementById('eNewImgGrid');
-  grid.innerHTML = '';
-  Array.from(input.files).forEach(file => {
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(file);
-    img.style.cssText = 'width:60px;height:60px;object-fit:cover;border:1px solid #ddd;border-radius:2px;';
-    grid.appendChild(img);
-  });
+  grid.innerHTML = editNewFiles.map((f, i) => `<div class="new-img-thumb"><img src="${URL.createObjectURL(f)}" alt=""><button type="button" class="new-img-del" onclick="removeEditNewImage(${i})" title="Remove">&#10005;</button></div>`).join('');
 }
 
 function openEditModal(id) {
@@ -797,6 +805,7 @@ function openEditModal(id) {
   editKeepImages = [...imgs];
   renderEditImgGrid();
   document.getElementById('eImage').value = '';
+  editNewFiles = [];
   document.getElementById('eNewImgGrid').innerHTML = '';
   document.getElementById('editModal').classList.add('open');
 }
