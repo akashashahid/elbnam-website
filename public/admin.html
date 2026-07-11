@@ -682,6 +682,34 @@ function renderProducts(products) {
   updateProductSelCount();
 }
 
+// Downscale/compress an image in the browser so the upload stays under
+// Vercel's ~4.5MB serverless request-body limit. Final images are padded to
+// 800x1000 by Cloudinary, so a 1600px source is plenty sharp.
+function resizeImage(file, maxDim = 1600, quality = 0.85) {
+  return new Promise(resolve => {
+    if (!file.type || !file.type.startsWith('image/')) { resolve(file); return; }
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = function () {
+      URL.revokeObjectURL(url);
+      let w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        if (w >= h) { h = Math.round(h * maxDim / w); w = maxDim; }
+        else { w = Math.round(w * maxDim / h); h = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob => {
+        if (!blob) { resolve(file); return; }
+        resolve(new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' }));
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
+
 async function addProduct() {
   const name  = document.getElementById('pName').value.trim();
   const price = document.getElementById('pPrice').value;
@@ -698,7 +726,7 @@ async function addProduct() {
   fd.append('label', document.getElementById('pLabel').value);
   fd.append('sizes', document.getElementById('pSizes').value);
   fd.append('sizeStock', JSON.stringify(getStockData('stockInputs')));
-  Array.from(files).forEach(f => fd.append('images', f));
+  for (const f of Array.from(files)) { const r = await resizeImage(f); fd.append('images', r); }
   try {
     const res  = await fetch(API_URL, { method: 'POST', body: fd });
     const data = await res.json();
@@ -791,7 +819,7 @@ async function updateProduct() {
   fd.append('sizes', document.getElementById('eSizes').value);
   fd.append('sizeStock', JSON.stringify(getStockData('eStockInputs')));
   fd.append('keepImages', JSON.stringify(editKeepImages));
-  Array.from(document.getElementById('eImage').files).forEach(f => fd.append('images', f));
+  for (const f of Array.from(document.getElementById('eImage').files)) { const r = await resizeImage(f); fd.append('images', r); }
   try {
     const res  = await fetch(API_URL + '/' + editingProductId, { method: 'PUT', body: fd });
     const data = await res.json();
