@@ -105,6 +105,24 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
 .edit-img-thumb { position:relative; width:70px; height:86px; flex-shrink:0; }
 .edit-img-thumb img { width:70px; height:86px; object-fit:cover; border:1px solid #ddd; border-radius:2px; display:block; }
 .edit-img-del { position:absolute; top:-6px; right:-6px; width:18px; height:18px; background:#e53935; color:#fff; border:none; border-radius:50%; cursor:pointer; font-size:10px; display:flex; align-items:center; justify-content:center; padding:0; line-height:1; }
+/* Size preset quick-pick chips */
+.size-presets { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.size-preset-group-label { width:100%; font-size:9px; letter-spacing:1px; color:#bbb; text-transform:uppercase; margin:4px 0 2px; }
+.size-preset-btn { padding:4px 10px; border:1px solid #e5e5e5; background:#fff; color:#555; font-size:11px; border-radius:14px; cursor:pointer; transition:all 0.15s; font-family:'Segoe UI',sans-serif; }
+.size-preset-btn:hover { border-color:#b8860b; color:#b8860b; }
+.size-preset-btn.on { background:#b8860b; color:#fff; border-color:#b8860b; }
+/* Multi-select delete bar */
+.bulk-bar { display:none; align-items:center; gap:12px; background:#fff8e1; border:1px solid #ffe082; border-radius:4px; padding:8px 14px; margin-bottom:14px; }
+.bulk-bar.show { display:flex; }
+.bulk-bar-count { font-size:12px; color:#8a6d00; font-weight:600; }
+.bulk-del-btn { padding:7px 16px; background:#e53935; color:#fff; border:none; font-size:10px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; border-radius:2px; }
+.bulk-del-btn:hover { background:#c62828; }
+.bulk-del-btn:disabled { background:#ccc; cursor:not-allowed; }
+.row-check { width:16px; height:16px; cursor:pointer; flex-shrink:0; accent-color:#b8860b; }
+.product-row-check { display:flex; align-items:center; padding:0 4px 0 14px; }
+.new-img-thumb { position:relative; width:60px; height:60px; flex-shrink:0; }
+.new-img-thumb img { width:60px; height:60px; object-fit:cover; border:1px solid #ddd; border-radius:2px; display:block; }
+.new-img-del { position:absolute; top:-6px; right:-6px; width:18px; height:18px; background:#e53935; color:#fff; border:none; border-radius:50%; cursor:pointer; font-size:10px; display:flex; align-items:center; justify-content:center; padding:0; line-height:1; }
 @media (max-width:768px) {
   .main { grid-template-columns:1fr; padding:16px; }
   .form-row { grid-template-columns:1fr; }
@@ -150,7 +168,7 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Category</label>
-          <select class="form-select" id="pCategory" onchange="updateSubcategory('pCategory','pSubcategory')">
+          <select class="form-select" id="pCategory" onchange="updateSubcategory('pCategory','pSubcategory');renderSizePresets('pCategory','pSizes','pSizePresets','stockInputs','pStockGroup')">
             <option value="mens">Men's</option>
             <option value="kids">Kids'</option>
             <option value="festive">Festive</option>
@@ -185,6 +203,7 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
       <div class="form-group">
         <label class="form-label">Sizes (comma separated)</label>
         <input type="text" class="form-input" id="pSizes" placeholder="S, M, L, XL, XXL" oninput="updateStockInputs('stockInputs','pSizes','pStockGroup')">
+        <div id="pSizePresets" class="size-presets"></div>
       </div>
       <div class="form-group" id="pStockGroup" style="display:none;">
         <label class="form-label">Stock Per Size</label>
@@ -192,7 +211,7 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
       </div>
       <div class="form-group">
         <label class="form-label">Product Images (Max 5)</label>
-        <input type="file" id="pImage" accept="image/*" multiple style="display:none" onchange="previewImgs(this,'imgPreview','imgPreviewText','imgPreviewGrid')">
+        <input type="file" id="pImage" accept="image/*" multiple style="display:none" onchange="addSelectedImages(this)">
         <div class="img-preview" onclick="document.getElementById('pImage').click()">
           <img id="imgPreview">
           <div class="img-preview-text" id="imgPreviewText">&#128247; Click to upload images</div>
@@ -234,6 +253,11 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
             Columns: <code style="background:#eee;padding:1px 5px;">Name, Category, Subcategory, Price, Original Price, Sizes, Label, Available, Sold</code><br>
             Available &amp; Sold are per-size: <code style="background:#eee;padding:1px 5px;">S:5;M:3;L:4;XL:2</code>
           </div>
+        </div>
+        <div class="bulk-bar" id="productBulkBar">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" class="row-check" id="productSelectAll" onchange="toggleSelectAllProducts(this)"> Select all</label>
+          <span class="bulk-bar-count" id="productSelCount">0 selected</span>
+          <button type="button" class="bulk-del-btn" id="productBulkDel" onclick="bulkDeleteProducts()" disabled>&#128465; Delete Selected</button>
         </div>
         <div class="product-list" id="productsGrid"></div>
       </div>
@@ -294,10 +318,15 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
             Columns: <code style="background:#eee;padding:1px 5px;">Customer, Phone, Address, Order, Price, Order Date, Status</code>
           </div>
         </div>
+        <div class="bulk-bar" id="orderBulkBar">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" class="row-check" id="orderSelectAll" onchange="toggleSelectAllOrders(this)"> Select all</label>
+          <span class="bulk-bar-count" id="orderSelCount">0 selected</span>
+          <button type="button" class="bulk-del-btn" id="orderBulkDel" onclick="bulkDeleteOrders()" disabled>&#128465; Delete Selected</button>
+        </div>
         <div class="orders-table-wrap">
           <table class="orders-table">
             <thead><tr>
-              <th>#</th><th>Customer</th><th>Phone</th><th>Address</th><th>Items</th><th>Total</th><th>Date</th><th>Status</th><th></th>
+              <th><input type="checkbox" class="row-check" id="orderSelectAllHead" onchange="toggleSelectAllOrders(this)"></th><th>#</th><th>Customer</th><th>Phone</th><th>Address</th><th>Items</th><th>Total</th><th>Date</th><th>Status</th><th></th>
             </tr></thead>
             <tbody id="ordersBody"></tbody>
           </table>
@@ -318,7 +347,7 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Category</label>
-        <select class="form-select" id="eCategory" onchange="updateSubcategory('eCategory','eSubcategory')">
+        <select class="form-select" id="eCategory" onchange="updateSubcategory('eCategory','eSubcategory');renderSizePresets('eCategory','eSizes','eSizePresets','eStockInputs','eStockGroup')">
           <option value="mens">Men's</option>
           <option value="kids">Kids'</option>
           <option value="festive">Festive</option>
@@ -353,6 +382,7 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
     <div class="form-group">
       <label class="form-label">Sizes (comma separated)</label>
       <input type="text" class="form-input" id="eSizes" placeholder="S, M, L, XL, XXL" oninput="updateStockInputs('eStockInputs','eSizes','eStockGroup')">
+      <div id="eSizePresets" class="size-presets"></div>
     </div>
     <div class="form-group" id="eStockGroup" style="display:none;">
       <label class="form-label">Stock Per Size</label>
@@ -403,7 +433,119 @@ function showDashboard() {
   document.getElementById('loginWrap').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   updateSubcategory('pCategory','pSubcategory');
+  renderSizePresets('pCategory','pSizes','pSizePresets','stockInputs','pStockGroup');
   loadProducts();
+}
+
+/* ---- Size preset quick-pick (adult + kids months/years) ---- */
+const SIZE_PRESETS = {
+  default: { '': ['S','M','L','XL','XXL'] },
+  kids: {
+    'Months': ['0-3M','3-6M','6-9M','9-12M','12-18M','18-24M'],
+    'Years':  ['2Y','3Y','4Y','5Y','6Y','7Y','8Y','9Y','10Y','11Y','12Y']
+  }
+};
+function renderSizePresets(catSelId, sizesInputId, presetContainerId, stockContainerId, stockGroupId) {
+  const cat = document.getElementById(catSelId).value;
+  const container = document.getElementById(presetContainerId);
+  if (!container) return;
+  const groups = cat === 'kids' ? SIZE_PRESETS.kids : SIZE_PRESETS.default;
+  const current = document.getElementById(sizesInputId).value.split(',').map(s => s.trim()).filter(Boolean);
+  let html = '';
+  for (const [label, sizes] of Object.entries(groups)) {
+    if (label) html += `<div class="size-preset-group-label">${label}</div>`;
+    html += sizes.map(s => `<button type="button" class="size-preset-btn ${current.includes(s) ? 'on' : ''}" onclick="toggleSizePreset('${sizesInputId}','${s}','${presetContainerId}','${catSelId}','${stockContainerId}','${stockGroupId}')">${s}</button>`).join('');
+  }
+  container.innerHTML = html;
+}
+function toggleSizePreset(sizesInputId, size, presetContainerId, catSelId, stockContainerId, stockGroupId) {
+  const input = document.getElementById(sizesInputId);
+  const list = input.value.split(',').map(s => s.trim()).filter(Boolean);
+  const i = list.indexOf(size);
+  if (i >= 0) list.splice(i, 1); else list.push(size);
+  input.value = list.join(', ');
+  updateStockInputs(stockContainerId, sizesInputId, stockGroupId);
+  renderSizePresets(catSelId, sizesInputId, presetContainerId, stockContainerId, stockGroupId);
+}
+
+/* ---- Add Product: accumulate multiple images across picks ---- */
+let addImageFiles = [];
+function addSelectedImages(input) {
+  for (const f of Array.from(input.files)) {
+    if (addImageFiles.length >= 5) break;
+    if (!addImageFiles.some(x => x.name === f.name && x.size === f.size)) addImageFiles.push(f);
+  }
+  syncAddImages();
+}
+function syncAddImages() {
+  const dt = new DataTransfer();
+  addImageFiles.forEach(f => dt.items.add(f));
+  document.getElementById('pImage').files = dt.files;
+  renderAddPreviews();
+}
+function removeAddImage(i) { addImageFiles.splice(i, 1); syncAddImages(); }
+function renderAddPreviews() {
+  const grid = document.getElementById('imgPreviewGrid');
+  const main = document.getElementById('imgPreview');
+  const text = document.getElementById('imgPreviewText');
+  if (!addImageFiles.length) {
+    main.style.display = 'none'; text.style.display = 'block'; grid.innerHTML = ''; return;
+  }
+  main.src = URL.createObjectURL(addImageFiles[0]); main.style.display = 'block'; text.style.display = 'none';
+  grid.innerHTML = addImageFiles.map((f, i) => `<div class="new-img-thumb"><img src="${URL.createObjectURL(f)}" alt=""><button type="button" class="new-img-del" onclick="removeAddImage(${i})" title="Remove">&#10005;</button></div>`).join('')
+    + (addImageFiles.length < 5 ? '<div class="new-img-thumb" style="border:1px dashed #ccc;border-radius:2px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#bbb;font-size:22px;" onclick="document.getElementById(\'pImage\').click()">+</div>' : '');
+}
+
+/* ---- Bulk delete: products ---- */
+function updateProductSelCount() {
+  const all = document.querySelectorAll('.prod-check');
+  const sel = document.querySelectorAll('.prod-check:checked');
+  document.getElementById('productSelCount').textContent = sel.length + ' selected';
+  document.getElementById('productBulkDel').disabled = sel.length === 0;
+  const master = document.getElementById('productSelectAll');
+  if (master) master.checked = all.length > 0 && sel.length === all.length;
+}
+function toggleSelectAllProducts(cb) {
+  document.querySelectorAll('.prod-check').forEach(c => c.checked = cb.checked);
+  updateProductSelCount();
+}
+async function bulkDeleteProducts() {
+  const ids = Array.from(document.querySelectorAll('.prod-check:checked')).map(c => c.value);
+  if (!ids.length) return;
+  if (!confirm(`Delete ${ids.length} selected product(s)? This cannot be undone.`)) return;
+  const btn = document.getElementById('productBulkDel');
+  btn.disabled = true; btn.textContent = 'Deleting...';
+  for (const id of ids) { try { await fetch(API_URL + '/' + id, { method: 'DELETE' }); } catch {} }
+  btn.textContent = '🗑 Delete Selected';
+  const master = document.getElementById('productSelectAll'); if (master) master.checked = false;
+  loadProducts();
+}
+
+/* ---- Bulk delete: orders ---- */
+function updateOrderSelCount() {
+  const all = document.querySelectorAll('.order-check');
+  const sel = document.querySelectorAll('.order-check:checked');
+  document.getElementById('orderSelCount').textContent = sel.length + ' selected';
+  document.getElementById('orderBulkDel').disabled = sel.length === 0;
+  ['orderSelectAll','orderSelectAllHead'].forEach(idm => {
+    const m = document.getElementById(idm);
+    if (m) m.checked = all.length > 0 && sel.length === all.length;
+  });
+}
+function toggleSelectAllOrders(cb) {
+  document.querySelectorAll('.order-check').forEach(c => c.checked = cb.checked);
+  updateOrderSelCount();
+}
+async function bulkDeleteOrders() {
+  const ids = Array.from(document.querySelectorAll('.order-check:checked')).map(c => c.value);
+  if (!ids.length) return;
+  if (!confirm(`Delete ${ids.length} selected order(s)? This cannot be undone.`)) return;
+  const btn = document.getElementById('orderBulkDel');
+  btn.disabled = true; btn.textContent = 'Deleting...';
+  for (const id of ids) { try { await fetch(ORDERS_URL + '/' + id, { method: 'DELETE' }); } catch {} }
+  btn.textContent = '🗑 Delete Selected';
+  ['orderSelectAll','orderSelectAllHead'].forEach(idm => { const m = document.getElementById(idm); if (m) m.checked = false; });
+  loadOrders();
 }
 
 function showSection(section) {
@@ -497,7 +639,8 @@ function filterProducts(cat, btn) {
 function renderProducts(products) {
   document.getElementById('productsCount').textContent = products.length + ' products';
   const grid = document.getElementById('productsGrid');
-  if (!products.length) { grid.innerHTML = '<div style="padding:20px;color:#999;">No products yet</div>'; return; }
+  document.getElementById('productBulkBar').classList.toggle('show', products.length > 0);
+  if (!products.length) { grid.innerHTML = '<div style="padding:20px;color:#999;">No products yet</div>'; updateProductSelCount(); return; }
   grid.innerHTML = products.map(p => {
     const stockMap = p.sizeStock || {};
     const imgs = p.images && p.images.length ? p.images : (p.image ? [p.image] : []);
@@ -511,6 +654,7 @@ function renderProducts(products) {
     const labelHtml = p.label ? `<span class="product-row-label ${p.label.toLowerCase()}">${p.label}</span>` : '';
     return `
     <div class="product-row">
+      <div class="product-row-check"><input type="checkbox" class="row-check prod-check" value="${p._id}" onchange="updateProductSelCount()"></div>
       <div class="product-row-img">
         <img src="${imgs[0] || ''}" alt="${p.name}">
         ${imgCount > 1 ? `<div class="product-row-img-count">${imgCount} imgs</div>` : ''}
@@ -535,6 +679,7 @@ function renderProducts(products) {
       </div>
     </div>`;
   }).join('');
+  updateProductSelCount();
 }
 
 async function addProduct() {
@@ -563,10 +708,9 @@ async function addProduct() {
       ['pName','pPrice','pOriginalPrice','pSizes'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('stockInputs').innerHTML = '';
       document.getElementById('pStockGroup').style.display = 'none';
-      document.getElementById('pImage').value = '';
-      document.getElementById('imgPreviewGrid').innerHTML = '';
-      document.getElementById('imgPreview').style.display = 'none';
-      document.getElementById('imgPreviewText').style.display = 'block';
+      addImageFiles = [];
+      syncAddImages();
+      renderSizePresets('pCategory','pSizes','pSizePresets','stockInputs','pStockGroup');
       loadProducts();
     } else { alert(data.error || 'Failed to add product'); }
   } catch (err) { alert('Error: ' + err.message); }
@@ -614,6 +758,7 @@ function openEditModal(id) {
   document.getElementById('ePrice').value = p.price;
   document.getElementById('eOriginalPrice').value = p.originalPrice || '';
   document.getElementById('eSizes').value = p.sizes.join(', ');
+  renderSizePresets('eCategory','eSizes','eSizePresets','eStockInputs','eStockGroup');
   setTimeout(() => {
     updateStockInputs('eStockInputs','eSizes','eStockGroup');
     const stockMap = p.sizeStock || {};
@@ -826,11 +971,13 @@ async function loadOrders() {
 
 function renderOrderRows(orders) {
   const tbody = document.getElementById('ordersBody');
-  if (!orders.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:#ccc;">No orders found</td></tr>'; return; }
+  document.getElementById('orderBulkBar').classList.toggle('show', orders.length > 0);
+  if (!orders.length) { tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:#ccc;">No orders found</td></tr>'; updateOrderSelCount(); return; }
   tbody.innerHTML = orders.map((o, idx) => {
     const itemsHtml = o.items.map(i => `<div class="item-line">${i.name} (${i.size}) &times;${i.qty}</div>`).join('');
     const statusOptions = ['Pending','Confirmed','Processing','Delivered','Cancelled'].map(s => `<option ${o.status===s?'selected':''}>${s}</option>`).join('');
     return `<tr>
+      <td><input type="checkbox" class="row-check order-check" value="${o._id}" onchange="updateOrderSelCount()"></td>
       <td style="color:#aaa;font-size:11px;">${idx+1}</td>
       <td><div style="font-weight:600;">${o.customerName}</div><div style="font-size:10px;color:#999;">${o.email||''}</div></td>
       <td>${o.phone}</td>
@@ -844,6 +991,7 @@ function renderOrderRows(orders) {
       <td><button type="button" onclick="deleteOrder('${o._id}')" style="background:none;border:1px solid #eee;color:#ccc;cursor:pointer;padding:4px 8px;font-size:12px;border-radius:2px;">&#10005;</button></td>
     </tr>`;
   }).join('');
+  updateOrderSelCount();
 }
 
 async function updateOrderStatus(id, status) {
