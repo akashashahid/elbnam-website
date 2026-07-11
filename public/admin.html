@@ -104,7 +104,12 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
 /* Per-image delete thumbnails */
 .edit-img-thumb { position:relative; width:70px; height:86px; flex-shrink:0; }
 .edit-img-thumb img { width:70px; height:86px; object-fit:cover; border:1px solid #ddd; border-radius:2px; display:block; }
-.edit-img-del { position:absolute; top:-6px; right:-6px; width:18px; height:18px; background:#e53935; color:#fff; border:none; border-radius:50%; cursor:pointer; font-size:10px; display:flex; align-items:center; justify-content:center; padding:0; line-height:1; }
+.edit-img-del { position:absolute; top:-6px; right:-6px; width:18px; height:18px; background:#e53935; color:#fff; border:none; border-radius:50%; cursor:pointer; font-size:10px; display:flex; align-items:center; justify-content:center; padding:0; line-height:1; z-index:2; }
+.edit-img-main { position:absolute; top:2px; left:2px; background:#b8860b; color:#fff; font-size:8px; letter-spacing:1px; text-transform:uppercase; padding:1px 5px; border-radius:2px; z-index:2; }
+.edit-img-move { position:absolute; bottom:0; left:0; right:0; display:flex; }
+.edit-img-move button { flex:1; border:none; background:rgba(0,0,0,0.55); color:#fff; font-size:10px; cursor:pointer; padding:2px 0; line-height:1; }
+.edit-img-move button:hover:not(:disabled) { background:#b8860b; }
+.edit-img-move button:disabled { opacity:0.3; cursor:not-allowed; }
 /* Size preset quick-pick chips */
 .size-presets { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
 .size-preset-group-label { width:100%; font-size:9px; letter-spacing:1px; color:#bbb; text-transform:uppercase; margin:4px 0 2px; }
@@ -755,8 +760,22 @@ function renderEditImgGrid() {
   grid.innerHTML = editKeepImages.map((url, i) => `
     <div class="edit-img-thumb">
       <img src="${url}" alt="">
+      ${i === 0 ? '<span class="edit-img-main">Main</span>' : ''}
       <button type="button" class="edit-img-del" onclick="removeEditKeepImage(${i})" title="Remove">✕</button>
+      <div class="edit-img-move">
+        <button type="button" onclick="moveEditKeepImage(${i},-1)" title="Move left" ${i === 0 ? 'disabled' : ''}>&#9664;</button>
+        <button type="button" onclick="moveEditKeepImage(${i},1)" title="Move right" ${i === editKeepImages.length - 1 ? 'disabled' : ''}>&#9654;</button>
+      </div>
     </div>`).join('');
+}
+
+function moveEditKeepImage(idx, dir) {
+  const j = idx + dir;
+  if (j < 0 || j >= editKeepImages.length) return;
+  const tmp = editKeepImages[idx];
+  editKeepImages[idx] = editKeepImages[j];
+  editKeepImages[j] = tmp;
+  renderEditImgGrid();
 }
 
 function removeEditKeepImage(idx) {
