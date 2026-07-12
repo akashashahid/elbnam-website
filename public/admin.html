@@ -128,6 +128,15 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
 .new-img-thumb { position:relative; width:60px; height:60px; flex-shrink:0; }
 .new-img-thumb img { width:60px; height:60px; object-fit:cover; border:1px solid #ddd; border-radius:2px; display:block; }
 .new-img-del { position:absolute; top:-6px; right:-6px; width:18px; height:18px; background:#e53935; color:#fff; border:none; border-radius:50%; cursor:pointer; font-size:10px; display:flex; align-items:center; justify-content:center; padding:0; line-height:1; }
+/* Colors editor */
+.add-color-btn { margin-top:8px; padding:7px 14px; background:#fff; border:1px dashed #b8860b; color:#b8860b; font-size:11px; border-radius:4px; cursor:pointer; letter-spacing:1px; }
+.add-color-btn:hover { background:#fff8e1; }
+.color-entry { border:1px solid #eee; border-radius:6px; padding:10px; margin-bottom:10px; background:#fafafa; }
+.color-entry-head { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.color-swatch-input { width:38px; height:34px; padding:0; border:1px solid #ddd; border-radius:4px; cursor:pointer; background:none; flex-shrink:0; }
+.color-remove-btn { width:26px; height:26px; background:#e53935; color:#fff; border:none; border-radius:50%; cursor:pointer; font-size:11px; flex-shrink:0; }
+.color-imgs { display:flex; flex-wrap:wrap; gap:6px; }
+.color-add-img { width:60px; height:60px; border:1px dashed #ccc; border-radius:2px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#bbb; font-size:22px; }
 @media (max-width:768px) {
   .main { grid-template-columns:1fr; padding:16px; }
   .form-row { grid-template-columns:1fr; }
@@ -222,6 +231,11 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
           <div class="img-preview-text" id="imgPreviewText">&#128247; Click to upload images</div>
         </div>
         <div id="imgPreviewGrid" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Colors (optional)</label>
+        <div id="addColorsList"></div>
+        <button type="button" class="add-color-btn" onclick="addColor('add')">&#43; Add Color</button>
       </div>
       <button type="button" class="submit-btn" id="submitBtn" onclick="addProduct()">&#9670; Add Product</button>
       <div class="success-toast" id="successToast">&#10003; Product added successfully!</div>
@@ -399,6 +413,11 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
       <input type="file" id="eImage" accept="image/*" multiple style="display:none" onchange="onEditImagesSelected(this)">
       <label for="eImage" class="import-btn outline" style="cursor:pointer;padding:8px 14px;font-size:9px;display:inline-block;">&#43; Add New Images</label>
       <div id="eNewImgGrid" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Colors (optional)</label>
+      <div id="editColorsList"></div>
+      <button type="button" class="add-color-btn" onclick="addColor('edit')">&#43; Add Color</button>
     </div>
     <button type="button" class="submit-btn" id="updateBtn" onclick="updateProduct()">Update Product</button>
   </div>
@@ -715,6 +734,46 @@ function resizeImage(file, maxDim = 1600, quality = 0.85) {
   });
 }
 
+/* ---- Colors editor (shared by add + edit via scope 'add'|'edit') ---- */
+const colorState = { add: [], edit: [] };
+function colorsListEl(scope) { return document.getElementById(scope === 'add' ? 'addColorsList' : 'editColorsList'); }
+function addColor(scope) { colorState[scope].push({ name: '', hex: '#000000', files: [], keep: [] }); renderColors(scope); }
+function removeColor(scope, i) { colorState[scope].splice(i, 1); renderColors(scope); }
+function colorNameInput(scope, i, v) { colorState[scope][i].name = v; }
+function colorHexInput(scope, i, v) { colorState[scope][i].hex = v; }
+function colorFilesSelected(scope, i, input) {
+  for (const f of Array.from(input.files)) {
+    if (!colorState[scope][i].files.some(x => x.name === f.name && x.size === f.size)) colorState[scope][i].files.push(f);
+  }
+  renderColors(scope);
+}
+function removeColorNewImg(scope, i, j) { colorState[scope][i].files.splice(j, 1); renderColors(scope); }
+function removeColorKeepImg(scope, i, j) { colorState[scope][i].keep.splice(j, 1); renderColors(scope); }
+function renderColors(scope) {
+  const el = colorsListEl(scope);
+  el.innerHTML = colorState[scope].map((c, i) => `
+    <div class="color-entry">
+      <div class="color-entry-head">
+        <input type="color" class="color-swatch-input" value="${c.hex || '#000000'}" onchange="colorHexInput('${scope}',${i},this.value)">
+        <input type="text" class="form-input" style="flex:1;" placeholder="Color name (e.g. Red)" value="${(c.name || '').replace(/"/g, '&quot;')}" oninput="colorNameInput('${scope}',${i},this.value)">
+        <button type="button" class="color-remove-btn" onclick="removeColor('${scope}',${i})" title="Remove color">&#10005;</button>
+      </div>
+      <div class="color-imgs">
+        ${(c.keep || []).map((url, j) => `<div class="new-img-thumb"><img src="${url}" alt=""><button type="button" class="new-img-del" onclick="removeColorKeepImg('${scope}',${i},${j})">&#10005;</button></div>`).join('')}
+        ${c.files.map((f, j) => `<div class="new-img-thumb"><img src="${URL.createObjectURL(f)}" alt=""><button type="button" class="new-img-del" onclick="removeColorNewImg('${scope}',${i},${j})">&#10005;</button></div>`).join('')}
+        <label class="color-add-img">+<input type="file" accept="image/*" multiple style="display:none" onchange="colorFilesSelected('${scope}',${i},this)"></label>
+      </div>
+    </div>`).join('');
+}
+// Append color metadata + resized files to a FormData for submit.
+async function appendColorsToForm(scope, fd) {
+  const meta = colorState[scope].map(c => ({ name: c.name || '', hex: c.hex || '', keep: c.keep || [] }));
+  fd.append('colors', JSON.stringify(meta));
+  for (let i = 0; i < colorState[scope].length; i++) {
+    for (const f of colorState[scope][i].files) { const r = await resizeImage(f); fd.append('color_' + i, r); }
+  }
+}
+
 async function addProduct() {
   const name  = document.getElementById('pName').value.trim();
   const price = document.getElementById('pPrice').value;
@@ -732,6 +791,7 @@ async function addProduct() {
   fd.append('sizes', document.getElementById('pSizes').value);
   fd.append('sizeStock', JSON.stringify(getStockData('stockInputs')));
   for (const f of Array.from(files)) { const r = await resizeImage(f); fd.append('images', r); }
+  await appendColorsToForm('add', fd);
   try {
     const res  = await fetch(API_URL, { method: 'POST', body: fd });
     const data = await res.json();
@@ -743,6 +803,8 @@ async function addProduct() {
       document.getElementById('pStockGroup').style.display = 'none';
       addImageFiles = [];
       syncAddImages();
+      colorState.add = [];
+      renderColors('add');
       renderSizePresets('pCategory','pSizes','pSizePresets','stockInputs','pStockGroup');
       loadProducts();
     } else { alert(data.error || 'Failed to add product'); }
@@ -826,6 +888,8 @@ function openEditModal(id) {
   document.getElementById('eImage').value = '';
   editNewFiles = [];
   document.getElementById('eNewImgGrid').innerHTML = '';
+  colorState.edit = (p.colors || []).map(c => ({ name: c.name || '', hex: c.hex || '#000000', files: [], keep: [...(c.images || [])] }));
+  renderColors('edit');
   document.getElementById('editModal').classList.add('open');
 }
 function closeEditModal() { document.getElementById('editModal').classList.remove('open'); editingProductId = null; }
@@ -848,6 +912,7 @@ async function updateProduct() {
   fd.append('sizeStock', JSON.stringify(getStockData('eStockInputs')));
   fd.append('keepImages', JSON.stringify(editKeepImages));
   for (const f of Array.from(document.getElementById('eImage').files)) { const r = await resizeImage(f); fd.append('images', r); }
+  await appendColorsToForm('edit', fd);
   try {
     const res  = await fetch(API_URL + '/' + editingProductId, { method: 'PUT', body: fd });
     const data = await res.json();
