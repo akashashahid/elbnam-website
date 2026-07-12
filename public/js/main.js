@@ -69,8 +69,11 @@ function renderProducts(products){
     if(p.label&&!oos) label='<div class="product-label '+p.label.toLowerCase()+'">'+p.label+'</div>';
     var oosOverlay='';
     if(oos) oosOverlay='<div style="position:absolute;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:2;"><span style="background:#e53935;color:#fff;font-size:9px;letter-spacing:2px;padding:5px 14px;text-transform:uppercase;">Out of Stock</span></div>';
+    var offPct=(p.originalPrice&&p.originalPrice>p.price)?Math.round((p.originalPrice-p.price)/p.originalPrice*100):0;
     var price='PKR '+p.price.toLocaleString();
     if(p.originalPrice) price+=' <del>PKR '+p.originalPrice.toLocaleString()+'</del>';
+    if(offPct>0) price+=' <span class="off-badge">'+offPct+'% OFF</span>';
+    var offCorner=offPct>0?'<div class="off-corner">'+offPct+'% OFF</div>':'';
     var colorDots='';
     if(p.colors&&p.colors.length){
       colorDots='<div class="card-color-dots">'+p.colors.map(function(c,ci){
@@ -82,7 +85,7 @@ function renderProducts(products){
     var atcDis=oos?'disabled':'';
     return '<div class="product-card" style="'+(oos?'opacity:0.85;':'')+'">'
       +'<div class="product-img" onclick="'+clickFn+'" style="cursor:'+(oos?'default':'pointer')+';">'
-      +label+oosOverlay
+      +label+offCorner+oosOverlay
       +'<img src="'+cloudinaryEnhance(rawImg)+'" alt="'+p.name+'" onclick="'+clickFn+'" onerror="this.onerror=null;this.src=\''+rawImg+'\'">'
       +'</div>'
       +'<div class="product-info">'
@@ -184,7 +187,8 @@ function openDetailPage(id){
   }
   document.getElementById('detailCat').textContent=currentProduct.category.toUpperCase()+(currentProduct.subcategory?' · '+currentProduct.subcategory.toUpperCase():'');
   document.getElementById('detailName').textContent=currentProduct.name;
-  document.getElementById('detailPrice').innerHTML='PKR '+currentProduct.price.toLocaleString()+(currentProduct.originalPrice?'<del>PKR '+currentProduct.originalPrice.toLocaleString()+'</del>':'');
+  var dOff=(currentProduct.originalPrice&&currentProduct.originalPrice>currentProduct.price)?Math.round((currentProduct.originalPrice-currentProduct.price)/currentProduct.originalPrice*100):0;
+  document.getElementById('detailPrice').innerHTML='PKR '+currentProduct.price.toLocaleString()+(currentProduct.originalPrice?'<del>PKR '+currentProduct.originalPrice.toLocaleString()+'</del>':'')+(dOff>0?' <span class="off-badge">'+dOff+'% OFF</span>':'');
   document.getElementById('detailQtyNum').textContent='1';
   const sw=document.getElementById('detailSizeWrap');
   sw.innerHTML='';

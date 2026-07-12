@@ -62,6 +62,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 40px;display:fl
 .product-price{font-size:12px;color:var(--black);}
 .product-price del{color:#797070;margin-left:6px;font-size:10px;}
 .card-size-row{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0 8px;}
+.off-badge{display:inline-block;background:#e53935;color:#fff;font-size:10px;font-weight:700;letter-spacing:0.5px;padding:2px 7px;border-radius:3px;margin-left:6px;vertical-align:middle;white-space:nowrap;}
+.off-corner{position:absolute;top:0;right:0;z-index:2;background:#e53935;color:#fff;font-size:10px;font-weight:700;letter-spacing:0.5px;padding:4px 9px;text-transform:uppercase;}
 .card-color-dots{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0;}
 .card-color-dot{width:16px;height:16px;border-radius:50%;border:1px solid var(--grey-light);cursor:pointer;padding:0;box-shadow:0 0 0 1px #fff inset;}
 .card-color-dot.sel{outline:1.5px solid var(--black);outline-offset:1px;}
