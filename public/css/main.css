@@ -62,6 +62,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 40px;display:fl
 .product-price{font-size:12px;color:var(--black);}
 .product-price del{color:#797070;margin-left:6px;font-size:10px;}
 .card-size-row{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0 8px;}
+.card-color-dots{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0;}
+.card-color-dot{width:16px;height:16px;border-radius:50%;border:1px solid var(--grey-light);cursor:pointer;padding:0;box-shadow:0 0 0 1px #fff inset;}
+.card-color-dot.sel{outline:1.5px solid var(--black);outline-offset:1px;}
+.color-swatches{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px;}
+.color-swatch{width:30px;height:30px;border-radius:50%;border:1px solid var(--grey-light);cursor:pointer;padding:0;box-shadow:0 0 0 2px #fff inset;transition:outline 0.15s;}
+.color-swatch.active{outline:2px solid var(--black);outline-offset:2px;}
 .card-size-btn{padding:3px 8px;border:1px solid var(--grey-light);background:var(--white);color:var(--grey);font-size:9px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;font-family:'Jost',sans-serif;}
 .card-size-btn.sel{background:var(--gold);color:var(--white);border-color:var(--gold);}
 .card-size-btn:disabled{opacity:0.3;cursor:not-allowed;text-decoration:line-through;}

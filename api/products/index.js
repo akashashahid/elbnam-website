@@ -17,6 +17,12 @@ function runMiddleware(req, res, fn) {
   return new Promise((resolve, reject) => fn(req, res, err => err ? reject(err) : resolve()));
 }
 
+function uploadFiles(files) {
+  return Promise.all((files || []).map(file => new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream({ folder: 'elbnam' }, (err, result) => err ? reject(err) : resolve(result.secure_url)).end(file.buffer);
+  })));
+}
+
 export default async function handler(req, res) {
   try {
     await connectDB();
@@ -32,20 +38,22 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Cloudinary environment variables are not set in Vercel.' });
       }
 
-      await runMiddleware(req, res, upload.array('images', 5));
-      const { name, category, subcategory, price, originalPrice, label, sizes, sizeStock } = req.body;
+      await runMiddleware(req, res, upload.any());
+      const { name, category, subcategory, price, originalPrice, label, sizes, sizeStock, colors } = req.body;
       if (!name || !price) return res.status(400).json({ error: 'Name and price required' });
       const sizeList = sizes ? sizes.split(',').map(s => s.trim()).filter(Boolean) : [];
       const stockData = sizeStock ? JSON.parse(sizeStock) : {};
-      const imageUrls = [];
-      for (const file of (req.files || [])) {
-        const result = await new Promise((resolve, reject) => {
-          cloudinary.uploader.upload_stream({ folder: 'elbnam' }, (err, result) => err ? reject(err) : resolve(result))
-            .end(file.buffer);
-        });
-        imageUrls.push(result.secure_url);
+      const files = req.files || [];
+      const imageUrls = await uploadFiles(files.filter(f => f.fieldname === 'images'));
+      const colorsInput = colors ? JSON.parse(colors) : [];
+      const colorsOut = [];
+      for (let i = 0; i < colorsInput.length; i++) {
+        const c = colorsInput[i];
+        const uploaded = await uploadFiles(files.filter(f => f.fieldname === 'color_' + i));
+        const imgs = [...(c.keep || []), ...uploaded];
+        if ((c.name && c.name.trim()) || imgs.length) colorsOut.push({ name: c.name || '', hex: c.hex || '', images: imgs });
       }
-      const product = new Product({ name, category, subcategory: subcategory || '', price: Number(price), originalPrice: Number(originalPrice) || 0, label: label || '', sizes: sizeList, sizeStock: stockData, images: imageUrls, inStock: true });
+      const product = new Product({ name, category, subcategory: subcategory || '', price: Number(price), originalPrice: Number(originalPrice) || 0, label: label || '', sizes: sizeList, sizeStock: stockData, images: imageUrls, colors: colorsOut, inStock: true });
       await product.save();
       return res.status(201).json({ success: true, product });
     }

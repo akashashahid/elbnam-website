@@ -17,26 +17,35 @@ function runMiddleware(req, res, fn) {
   return new Promise((resolve, reject) => fn(req, res, err => err ? reject(err) : resolve()));
 }
 
+function uploadFiles(files) {
+  return Promise.all((files || []).map(file => new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream({ folder: 'elbnam' }, (err, result) => err ? reject(err) : resolve(result.secure_url)).end(file.buffer);
+  })));
+}
+
 export default async function handler(req, res) {
   await connectDB();
   const { id } = req.query;
 
   if (req.method === 'PUT') {
-    await runMiddleware(req, res, upload.array('images', 5));
-    const { name, category, subcategory, price, originalPrice, label, sizes, sizeStock, keepImages } = req.body;
+    await runMiddleware(req, res, upload.any());
+    const { name, category, subcategory, price, originalPrice, label, sizes, sizeStock, keepImages, colors } = req.body;
     const sizeList  = sizes      ? sizes.split(',').map(s => s.trim()).filter(Boolean) : [];
     const stockData = sizeStock  ? JSON.parse(sizeStock)  : {};
     const keep      = keepImages ? JSON.parse(keepImages) : [];
-    const newUrls   = [];
-    for (const file of (req.files || [])) {
-      const result = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream({ folder: 'elbnam' }, (err, r) => err ? reject(err) : resolve(r)).end(file.buffer);
-      });
-      newUrls.push(result.secure_url);
-    }
+    const files     = req.files || [];
+    const newUrls   = await uploadFiles(files.filter(f => f.fieldname === 'images'));
     const images = [...keep, ...newUrls];
+    const colorsInput = colors ? JSON.parse(colors) : [];
+    const colorsOut = [];
+    for (let i = 0; i < colorsInput.length; i++) {
+      const c = colorsInput[i];
+      const uploaded = await uploadFiles(files.filter(f => f.fieldname === 'color_' + i));
+      const imgs = [...(c.keep || []), ...uploaded];
+      if ((c.name && c.name.trim()) || imgs.length) colorsOut.push({ name: c.name || '', hex: c.hex || '', images: imgs });
+    }
     const product = await Product.findByIdAndUpdate(id,
-      { name, category, subcategory: subcategory || '', price: Number(price), originalPrice: Number(originalPrice) || 0, label: label || '', sizes: sizeList, sizeStock: stockData, images, inStock: images.length > 0 },
+      { name, category, subcategory: subcategory || '', price: Number(price), originalPrice: Number(originalPrice) || 0, label: label || '', sizes: sizeList, sizeStock: stockData, images, colors: colorsOut, inStock: images.length > 0 || colorsOut.some(c => c.images.length) },
       { new: true }
     );
     if (!product) return res.status(404).json({ error: 'Not found' });
