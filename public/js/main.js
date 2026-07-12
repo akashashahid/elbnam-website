@@ -2,7 +2,7 @@ const API_URL='/api/products';
 
 function cloudinaryEnhance(url){
   if(!url||!url.includes('res.cloudinary.com'))return url;
-  return url.replace('/upload/','/upload/e_background_removal/b_white,c_pad,w_800,h_1000,e_improve,e_sharpen,q_auto,f_auto/');
+  return url.replace('/upload/','/upload/c_pad,w_800,h_1000,b_white,e_improve,e_sharpen,q_auto,f_auto/');
 }
 let allProducts=[],cart=[],currentProduct=null,selectedSize=null,currentQty=1,activeCategory='all',activeSubcategory='';
 let detailImgs=[],detailImgIdx=0;
