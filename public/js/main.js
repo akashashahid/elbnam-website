@@ -79,7 +79,6 @@ function renderProducts(products){
     var offPct=(p.originalPrice&&p.originalPrice>p.price)?Math.round((p.originalPrice-p.price)/p.originalPrice*100):0;
     var price='PKR '+p.price.toLocaleString();
     if(p.originalPrice) price+=' <del>PKR '+p.originalPrice.toLocaleString()+'</del>';
-    if(offPct>0) price+=' <span class="off-badge">'+offPct+'% OFF</span>';
     var offCorner=offPct>0?'<div class="off-corner">'+offPct+'% OFF</div>':'';
     var colorDots='';
     if(p.colors&&p.colors.length){
@@ -184,19 +183,23 @@ function openDetailPage(id){
   // Color swatches
   var colorWrap=document.getElementById('detailColorWrap');
   var colorLabel=document.getElementById('detailColorLabel');
-  if(colors.length){
-    colorLabel.style.display='block';
-    colorWrap.style.display='flex';
-    colorWrap.innerHTML=colors.map(function(c,i){
-      return '<button class="color-swatch" title="'+(c.name||'')+'" onclick="selectDetailColor('+i+')" style="background:'+(c.hex||'#ccc')+'"></button>';
-    }).join('');
-  }else{
-    colorLabel.style.display='none';colorWrap.style.display='none';colorWrap.innerHTML='';
+  if(colorWrap&&colorLabel){
+    if(colors.length){
+      colorLabel.style.display='block';
+      colorWrap.style.display='flex';
+      colorWrap.innerHTML=colors.map(function(c,i){
+        return '<button class="color-swatch" title="'+(c.name||'')+'" onclick="selectDetailColor('+i+')" style="background:'+(c.hex||'#ccc')+'"></button>';
+      }).join('');
+    }else{
+      colorLabel.style.display='none';colorWrap.style.display='none';colorWrap.innerHTML='';
+    }
   }
   document.getElementById('detailCat').textContent=currentProduct.category.toUpperCase()+(currentProduct.subcategory?' · '+currentProduct.subcategory.toUpperCase():'');
   document.getElementById('detailName').textContent=currentProduct.name;
   var dOff=(currentProduct.originalPrice&&currentProduct.originalPrice>currentProduct.price)?Math.round((currentProduct.originalPrice-currentProduct.price)/currentProduct.originalPrice*100):0;
-  document.getElementById('detailPrice').innerHTML='PKR '+currentProduct.price.toLocaleString()+(currentProduct.originalPrice?'<del>PKR '+currentProduct.originalPrice.toLocaleString()+'</del>':'')+(dOff>0?' <span class="off-badge">'+dOff+'% OFF</span>':'');
+  var offEl=document.getElementById('detailOffCorner');
+  if(offEl){ if(dOff>0){offEl.textContent=dOff+'% OFF';offEl.style.display='block';}else{offEl.style.display='none';} }
+  document.getElementById('detailPrice').innerHTML='PKR '+currentProduct.price.toLocaleString()+(currentProduct.originalPrice?'<del>PKR '+currentProduct.originalPrice.toLocaleString()+'</del>':'');
   document.getElementById('detailQtyNum').textContent='1';
   const sw=document.getElementById('detailSizeWrap');
   sw.innerHTML='';
