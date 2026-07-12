@@ -224,7 +224,7 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
         <div id="stockInputs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:8px;"></div>
       </div>
       <div class="form-group">
-        <label class="form-label">Product Images (Max 5)</label>
+        <label class="form-label">Product Images (Max 10)</label>
         <input type="file" id="pImage" accept="image/*" multiple style="display:none" onchange="addSelectedImages(this)">
         <div class="img-preview" onclick="document.getElementById('pImage').click()">
           <img id="imgPreview">
@@ -269,8 +269,8 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
             <div id="productImportLog" style="max-height:80px;overflow-y:auto;color:#e53935;"></div>
           </div>
           <div style="font-size:11px;color:#aaa;margin-top:8px;line-height:1.8;">
-            Columns: <code style="background:#eee;padding:1px 5px;">Name, Category, Subcategory, Price, Original Price, Sizes, Label, Available, Sold</code><br>
-            Available &amp; Sold are per-size: <code style="background:#eee;padding:1px 5px;">S:5;M:3;L:4;XL:2</code>
+            Columns: <code style="background:#eee;padding:1px 5px;">Name, Category, Subcategory, Price, Original Price, Sizes, Label, Colors, Available, Sold</code><br>
+            Available &amp; Sold are per-size: <code style="background:#eee;padding:1px 5px;">S:5;M:3;L:4;XL:2</code> &nbsp;·&nbsp; Colors: <code style="background:#eee;padding:1px 5px;">Red|#ff0000; Blue|#0000ff</code> (images added in the editor)
           </div>
         </div>
         <div class="bulk-bar" id="productBulkBar">
@@ -496,7 +496,7 @@ function toggleSizePreset(sizesInputId, size, presetContainerId, catSelId, stock
 let addImageFiles = [];
 function addSelectedImages(input) {
   for (const f of Array.from(input.files)) {
-    if (addImageFiles.length >= 5) break;
+    if (addImageFiles.length >= 10) break;
     if (!addImageFiles.some(x => x.name === f.name && x.size === f.size)) addImageFiles.push(f);
   }
   syncAddImages();
@@ -517,7 +517,7 @@ function renderAddPreviews() {
   }
   main.src = URL.createObjectURL(addImageFiles[0]); main.style.display = 'block'; text.style.display = 'none';
   grid.innerHTML = addImageFiles.map((f, i) => `<div class="new-img-thumb"><img src="${URL.createObjectURL(f)}" alt=""><button type="button" class="new-img-del" onclick="removeAddImage(${i})" title="Remove">&#10005;</button></div>`).join('')
-    + (addImageFiles.length < 5 ? '<div class="new-img-thumb" style="border:1px dashed #ccc;border-radius:2px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#bbb;font-size:22px;" onclick="document.getElementById(\'pImage\').click()">+</div>' : '');
+    + (addImageFiles.length < 10 ? '<div class="new-img-thumb" style="border:1px dashed #ccc;border-radius:2px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#bbb;font-size:22px;" onclick="document.getElementById(\'pImage\').click()">+</div>' : '');
 }
 
 /* ---- Bulk delete: products ---- */
@@ -934,10 +934,10 @@ async function downloadInventoryReport() {
     const [prods, orders] = await Promise.all([ fetch(API_URL).then(r=>r.json()), fetch(ORDERS_URL).then(r=>r.json()) ]);
     const sm = {};
     orders.filter(o=>o.status!=='Cancelled').forEach(o=>{ (o.items||[]).forEach(item=>{ const k1=(item.productId||'')+`|${item.size}`, k2=(item.name||'')+`|${item.size}`; sm[k1]=(sm[k1]||0)+(item.qty||0); sm[k2]=(sm[k2]||0)+(item.qty||0); }); });
-    const rows=[['Name','Category','Subcategory','Price','Original Price','Sizes','Label','Available','Sold']];
-    prods.forEach(p=>{ const sizes=p.sizes||[]; const stock=p.sizeStock||{}; const availStr=sizes.map(sz=>`${sz}:${stock[sz]??0}`).join(';'); const soldStr=sizes.map(sz=>{ const k1=(p._id||'')+`|${sz}`, k2=(p.name||'')+`|${sz}`; return `${sz}:${sm[k1]||sm[k2]||0}`; }).join(';'); rows.push([p.name,p.category,p.subcategory||'',p.price,p.originalPrice||'',sizes.join(','),p.label||'',availStr||'0',soldStr||'0']); });
+    const rows=[['Name','Category','Subcategory','Price','Original Price','Sizes','Label','Colors','Available','Sold']];
+    prods.forEach(p=>{ const sizes=p.sizes||[]; const stock=p.sizeStock||{}; const availStr=sizes.map(sz=>`${sz}:${stock[sz]??0}`).join(';'); const soldStr=sizes.map(sz=>{ const k1=(p._id||'')+`|${sz}`, k2=(p.name||'')+`|${sz}`; return `${sz}:${sm[k1]||sm[k2]||0}`; }).join(';'); const colorStr=(p.colors||[]).map(c=>c.hex?`${c.name}|${c.hex}`:c.name).join('; '); rows.push([p.name,p.category,p.subcategory||'',p.price,p.originalPrice||'',sizes.join(','),p.label||'',colorStr,availStr||'0',soldStr||'0']); });
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [20,10,14,8,12,16,8,20,20].map(w => ({ wch: w }));
+    ws['!cols'] = [20,10,14,8,12,16,8,18,20,20].map(w => ({ wch: w }));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Inventory');
     XLSX.writeFile(wb, 'elbnam_inventory_'+new Date().toISOString().slice(0,10)+'.xlsx');
@@ -968,9 +968,15 @@ async function startProductImport() {
     const sizesRaw = row['Sizes'] ? String(row['Sizes']) : '';
     const sizeList = sizesRaw.split(',').map(s => s.trim()).filter(Boolean);
     const available = row['Available'] !== undefined ? String(row['Available']) : '0';
+    // Colors column format: "Red|#ff0000; Blue|#0000ff" (hex optional)
+    const colorsRaw = row['Colors'] ? String(row['Colors']) : '';
+    const colorsList = colorsRaw.split(';').map(s => s.trim()).filter(Boolean).map(tok => {
+      const [nm, hx] = tok.split('|').map(x => (x || '').trim());
+      return { name: nm || '', hex: hx || '' };
+    }).filter(c => c.name);
     try {
       const res = await fetch(API_URL + '/import', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ name: String(row['Name']||''), category: String(row['Category']||'mens').toLowerCase(), subcategory: String(row['Subcategory']||''), price: Number(row['Price'])||0, originalPrice: Number(row['Original Price'])||0, sizes: sizeList, label: String(row['Label']||''), available }) });
+        body: JSON.stringify({ name: String(row['Name']||''), category: String(row['Category']||'mens').toLowerCase(), subcategory: String(row['Subcategory']||''), price: Number(row['Price'])||0, originalPrice: Number(row['Original Price'])||0, sizes: sizeList, label: String(row['Label']||''), colors: colorsList, available }) });
       const data = await res.json();
       if (data.success) { data.updated ? updated++ : created++; } else { failed++; errors.push(`${row['Name']} — ${data.message}`); }
     } catch { failed++; errors.push(`${row['Name']} — Network error`); }
