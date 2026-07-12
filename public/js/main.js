@@ -4,6 +4,13 @@ function cloudinaryEnhance(url){
   if(!url||!url.includes('res.cloudinary.com'))return url;
   return url.replace('/upload/','/upload/c_pad,w_800,h_1000,b_white,e_improve,e_sharpen,q_auto,f_auto/');
 }
+// First image for a product: legacy main image, else the first color's first image.
+function firstProductImage(p){
+  if(p.images&&p.images.length)return p.images[0];
+  if(p.image)return p.image;
+  if(p.colors)for(var i=0;i<p.colors.length;i++){if(p.colors[i].images&&p.colors[i].images.length)return p.colors[i].images[0];}
+  return '';
+}
 let allProducts=[],cart=[],currentProduct=null,selectedSize=null,currentQty=1,activeCategory='all',activeSubcategory='';
 let detailImgs=[],detailImgIdx=0;
 const cardSelectedSizes={};
@@ -63,7 +70,7 @@ function renderProducts(products){
     var oos=!p.inStock;
     var id=p._id;
     var stockMap=p.sizeStock||{};
-    var rawImg=(p.images&&p.images.length)?p.images[0]:(p.image||'');
+    var rawImg=firstProductImage(p);
     var clickFn=oos?'':"openDetailPage('"+id+"')";
     var label='';
     if(p.label&&!oos) label='<div class="product-label '+p.label.toLowerCase()+'">'+p.label+'</div>';
@@ -128,7 +135,7 @@ function cardAddToCart(id){
   const ex=cart.find(i=>i._id===id&&i.size===size);
   const inCart=ex?ex.qty:0;
   if(inCart+1>available){alert('No more stock available for this size.');return;}
-  const img=p.images&&p.images.length?cloudinaryEnhance(p.images[0]):(cloudinaryEnhance(p.image)||'');
+  const img=cloudinaryEnhance(firstProductImage(p))||'';
   if(ex)ex.qty++;
   else cart.push({_id:id,name:p.name,cat:p.category,priceNum:p.price,size,qty:1,image:img});
   updateCartCount();
@@ -171,7 +178,8 @@ function openDetailPage(id){
   if(!currentProduct)return;
   selectedSize=null;currentQty=1;
   var colors=currentProduct.colors||[];
-  detailImgs=(currentProduct.images&&currentProduct.images.length)?currentProduct.images:((colors[0]&&colors[0].images&&colors[0].images.length)?colors[0].images:[]);
+  detailImgs=(currentProduct.images&&currentProduct.images.length)?currentProduct.images:[];
+  if(!detailImgs.length){for(var _ci=0;_ci<colors.length;_ci++){if(colors[_ci].images&&colors[_ci].images.length){detailImgs=colors[_ci].images;break;}}}
   renderDetailGallery();
   // Color swatches
   var colorWrap=document.getElementById('detailColorWrap');
