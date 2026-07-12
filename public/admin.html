@@ -224,16 +224,8 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
         <div id="stockInputs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:8px;"></div>
       </div>
       <div class="form-group">
-        <label class="form-label">Product Images (Max 10)</label>
-        <input type="file" id="pImage" accept="image/*" multiple style="display:none" onchange="addSelectedImages(this)">
-        <div class="img-preview" onclick="document.getElementById('pImage').click()">
-          <img id="imgPreview">
-          <div class="img-preview-text" id="imgPreviewText">&#128247; Click to upload images</div>
-        </div>
-        <div id="imgPreviewGrid" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"></div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Colors (optional)</label>
+        <label class="form-label">Colors &amp; Images</label>
+        <div style="font-size:11px;color:#aaa;margin-bottom:8px;">Add a color and upload its images. Each product needs at least one color with an image.</div>
         <div id="addColorsList"></div>
         <button type="button" class="add-color-btn" onclick="addColor('add')">&#43; Add Color</button>
       </div>
@@ -408,14 +400,7 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
       <div id="eStockInputs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:8px;"></div>
     </div>
     <div class="form-group">
-      <label class="form-label">Current Images <span style="color:#aaa;font-weight:400;">(click ✕ to remove)</span></label>
-      <div id="editImgGrid" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;min-height:30px;"></div>
-      <input type="file" id="eImage" accept="image/*" multiple style="display:none" onchange="onEditImagesSelected(this)">
-      <label for="eImage" class="import-btn outline" style="cursor:pointer;padding:8px 14px;font-size:9px;display:inline-block;">&#43; Add New Images</label>
-      <div id="eNewImgGrid" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"></div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Colors (optional)</label>
+      <label class="form-label">Colors &amp; Images</label>
       <div id="editColorsList"></div>
       <button type="button" class="add-color-btn" onclick="addColor('edit')">&#43; Add Color</button>
     </div>
@@ -667,7 +652,8 @@ function renderProducts(products) {
   if (!products.length) { grid.innerHTML = '<div style="padding:20px;color:#999;">No products yet</div>'; updateProductSelCount(); return; }
   grid.innerHTML = products.map(p => {
     const stockMap = p.sizeStock || {};
-    const imgs = p.images && p.images.length ? p.images : (p.image ? [p.image] : []);
+    let imgs = p.images && p.images.length ? p.images : (p.image ? [p.image] : []);
+    if (!imgs.length && p.colors && p.colors.length) { for (const c of p.colors) { if (c.images && c.images.length) { imgs = c.images; break; } } }
     const imgCount = imgs.length;
     const stockChips = (p.sizes || []).map(sz => {
       const avail = stockMap[sz] ?? 0;
@@ -777,8 +763,9 @@ async function appendColorsToForm(scope, fd) {
 async function addProduct() {
   const name  = document.getElementById('pName').value.trim();
   const price = document.getElementById('pPrice').value;
-  const files = document.getElementById('pImage').files;
-  if (!name || !price || !files.length) { alert('Name, price, and at least one image are required!'); return; }
+  const hasColorImg = colorState.add.some(c => (c.files && c.files.length) || (c.keep && c.keep.length));
+  if (!name || !price) { alert('Name and price are required!'); return; }
+  if (!hasColorImg) { alert('Add at least one color with an image.'); return; }
   const btn = document.getElementById('submitBtn');
   btn.disabled = true; btn.textContent = 'Uploading...';
   const fd = new FormData();
@@ -790,7 +777,6 @@ async function addProduct() {
   fd.append('label', document.getElementById('pLabel').value);
   fd.append('sizes', document.getElementById('pSizes').value);
   fd.append('sizeStock', JSON.stringify(getStockData('stockInputs')));
-  for (const f of Array.from(files)) { const r = await resizeImage(f); fd.append('images', r); }
   await appendColorsToForm('add', fd);
   try {
     const res  = await fetch(API_URL, { method: 'POST', body: fd });
@@ -801,8 +787,6 @@ async function addProduct() {
       ['pName','pPrice','pOriginalPrice','pSizes'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('stockInputs').innerHTML = '';
       document.getElementById('pStockGroup').style.display = 'none';
-      addImageFiles = [];
-      syncAddImages();
       colorState.add = [];
       renderColors('add');
       renderSizePresets('pCategory','pSizes','pSizePresets','stockInputs','pStockGroup');
@@ -881,13 +865,8 @@ function openEditModal(id) {
     const stockMap = p.sizeStock || {};
     document.querySelectorAll('#eStockInputs input').forEach(i => { i.value = stockMap[i.dataset.size] ?? 0; });
   }, 0);
-  // Populate existing images
-  const imgs = p.images?.length ? p.images : (p.image ? [p.image] : []);
-  editKeepImages = [...imgs];
-  renderEditImgGrid();
-  document.getElementById('eImage').value = '';
-  editNewFiles = [];
-  document.getElementById('eNewImgGrid').innerHTML = '';
+  // Preserve any legacy main images silently (kept, not editable — images live in colors now)
+  editKeepImages = p.images?.length ? [...p.images] : (p.image ? [p.image] : []);
   colorState.edit = (p.colors || []).map(c => ({ name: c.name || '', hex: c.hex || '#000000', files: [], keep: [...(c.images || [])] }));
   renderColors('edit');
   document.getElementById('editModal').classList.add('open');
@@ -911,7 +890,6 @@ async function updateProduct() {
   fd.append('sizes', document.getElementById('eSizes').value);
   fd.append('sizeStock', JSON.stringify(getStockData('eStockInputs')));
   fd.append('keepImages', JSON.stringify(editKeepImages));
-  for (const f of Array.from(document.getElementById('eImage').files)) { const r = await resizeImage(f); fd.append('images', r); }
   await appendColorsToForm('edit', fd);
   try {
     const res  = await fetch(API_URL + '/' + editingProductId, { method: 'PUT', body: fd });
