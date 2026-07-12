@@ -65,24 +65,12 @@ function renderProducts(products){
     var stockMap=p.sizeStock||{};
     var rawImg=(p.images&&p.images.length)?p.images[0]:(p.image||'');
     var clickFn=oos?'':"openDetailPage('"+id+"')";
-    var sizeBtns='';
-    if(p.sizes&&p.sizes.length){
-      sizeBtns=p.sizes.map(function(s){
-        var qty=stockMap[s]!=null?stockMap[s]:null;
-        var sOos=qty!==null&&qty===0;
-        var isSel=(cardSelectedSizes[id]===s);
-        var dis=(sOos||oos)?'disabled':'';
-        var btnCls='card-size-btn'+(isSel?' sel':'');
-        return '<button class="'+btnCls+'" '+dis+' onclick="selectCardSize(\''+id+'\',\''+s+'\',this)">'+s+'</button>';
-      }).join('');
-    }
     var label='';
     if(p.label&&!oos) label='<div class="product-label '+p.label.toLowerCase()+'">'+p.label+'</div>';
     var oosOverlay='';
     if(oos) oosOverlay='<div style="position:absolute;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:2;"><span style="background:#e53935;color:#fff;font-size:9px;letter-spacing:2px;padding:5px 14px;text-transform:uppercase;">Out of Stock</span></div>';
     var price='PKR '+p.price.toLocaleString();
     if(p.originalPrice) price+=' <del>PKR '+p.originalPrice.toLocaleString()+'</del>';
-    var sizeRow=sizeBtns?'<div class="card-size-row">'+sizeBtns+'</div>':'';
     var atcOnclick=oos?'':"cardAddToCart('"+id+"')";
     var atcText=oos?'Out of Stock':'Add to Cart';
     var atcDis=oos?'disabled':'';
@@ -95,7 +83,6 @@ function renderProducts(products){
       +'<div class="product-cat">'+p.category+'</div>'
       +'<div class="product-name" onclick="'+clickFn+'">'+p.name+'</div>'
       +'<div class="product-price">'+price+'</div>'
-      +sizeRow
       +'<div class="product-line"></div>'
       +'<button class="card-atc-btn" '+atcDis+' onclick="'+atcOnclick+'">'+atcText+'</button>'
       +'</div>'
@@ -113,8 +100,9 @@ function selectCardSize(id,size,btn){
 function cardAddToCart(id){
   const p=allProducts.find(x=>x._id===id);
   if(!p)return;
-  const size=cardSelectedSizes[id];
-  if(!size){alert('Please select a size first.');return;}
+  // Sizes are chosen on the detail page now — send there if the product has sizes.
+  if(p.sizes&&p.sizes.length){openDetailPage(id);return;}
+  const size='One Size';
   const stockMap=p.sizeStock||{};
   const available=stockMap[size]!=null?stockMap[size]:999;
   const ex=cart.find(i=>i._id===id&&i.size===size);
