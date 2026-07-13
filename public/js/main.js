@@ -1,9 +1,14 @@
 const API_URL='/api/products';
 
-function cloudinaryEnhance(url){
+// Standardize every image to 9:16, cropping to fill (g_auto keeps the subject).
+// q_auto+f_auto let Cloudinary serve compressed WebP/AVIF for fast loads.
+function cldTransform(url,w,h){
   if(!url||!url.includes('res.cloudinary.com'))return url;
-  return url.replace('/upload/','/upload/c_pad,w_800,h_1000,b_white,e_improve,e_sharpen,q_auto,f_auto/');
+  return url.replace('/upload/','/upload/c_fill,g_auto,w_'+w+',h_'+h+',e_sharpen,q_auto,f_auto/');
 }
+function cloudinaryEnhance(url){ return cldTransform(url,810,1440); }  // detail / large
+function cloudinaryCard(url){ return cldTransform(url,540,960); }      // grid + cart thumbnails
+function cloudinaryThumb(url){ return cldTransform(url,180,320); }     // detail thumbnail strip
 // First image for a product: legacy main image, else the first color's first image.
 function firstProductImage(p){
   if(p.images&&p.images.length)return p.images[0];
@@ -92,7 +97,7 @@ function renderProducts(products){
     return '<div class="product-card" style="'+(oos?'opacity:0.85;':'')+'">'
       +'<div class="product-img" onclick="'+clickFn+'" style="cursor:'+(oos?'default':'pointer')+';">'
       +label+offCorner+oosOverlay
-      +'<img src="'+cloudinaryEnhance(rawImg)+'" alt="'+p.name+'" onclick="'+clickFn+'" onerror="this.onerror=null;this.src=\''+rawImg+'\'">'
+      +'<img src="'+cloudinaryCard(rawImg)+'" alt="'+p.name+'" loading="lazy" onclick="'+clickFn+'" onerror="this.onerror=null;this.src=\''+rawImg+'\'">'
       +'</div>'
       +'<div class="product-info">'
       +'<div class="product-cat">'+p.category+'</div>'
@@ -120,7 +125,7 @@ function swapCardImg(e,id,ci){
   let img=(c&&c.images&&c.images.length)?c.images[0]:((p.images&&p.images.length)?p.images[0]:'');
   const card=e.target.closest('.product-card');
   const imgEl=card.querySelector('.product-img img');
-  if(imgEl){imgEl.onerror=function(){imgEl.onerror=null;imgEl.src=img;};imgEl.src=cloudinaryEnhance(img);}
+  if(imgEl){imgEl.onerror=function(){imgEl.onerror=null;imgEl.src=img;};imgEl.src=cloudinaryCard(img);}
   card.querySelectorAll('.card-color-dot').forEach(function(d,di){d.classList.toggle('sel',di===ci);});
 }
 function cardAddToCart(id){
@@ -134,7 +139,7 @@ function cardAddToCart(id){
   const ex=cart.find(i=>i._id===id&&i.size===size);
   const inCart=ex?ex.qty:0;
   if(inCart+1>available){alert('No more stock available for this size.');return;}
-  const img=cloudinaryEnhance(firstProductImage(p))||'';
+  const img=cloudinaryCard(firstProductImage(p))||'';
   if(ex)ex.qty++;
   else cart.push({_id:id,name:p.name,cat:p.category,priceNum:p.price,size,qty:1,image:img});
   updateCartCount();
@@ -161,7 +166,7 @@ function renderDetailGallery(){
   var thumbsEl=document.getElementById('detailThumbs');
   if(detailImgs.length>1){
     thumbsEl.style.display='flex';
-    thumbsEl.innerHTML=detailImgs.map(function(url,i){return '<div class="detail-thumb '+(i===0?'active':'')+'" onclick="setDetailImg('+i+')"><img src="'+url+'" alt=""></div>';}).join('');
+    thumbsEl.innerHTML=detailImgs.map(function(url,i){return '<div class="detail-thumb '+(i===0?'active':'')+'" onclick="setDetailImg('+i+')"><img src="'+cloudinaryThumb(url)+'" loading="lazy" alt=""></div>';}).join('');
   }else{thumbsEl.innerHTML='';thumbsEl.style.display='none';}
 }
 function selectDetailColor(i){
@@ -309,7 +314,7 @@ function renderCart(){
   let total=0;
   c.innerHTML=cart.map((item,i)=>{
     total+=item.priceNum*item.qty;
-    const imgHtml=item.image?`<img src="${cloudinaryEnhance(item.image)}" alt="${item.name}">`:'<div style="width:100%;height:100%;background:var(--grey-ultra);display:flex;align-items:center;justify-content:center;font-size:24px;">👗</div>';
+    const imgHtml=item.image?`<img src="${cloudinaryCard(item.image)}" alt="${item.name}" loading="lazy">`:'<div style="width:100%;height:100%;background:var(--grey-ultra);display:flex;align-items:center;justify-content:center;font-size:24px;">👗</div>';
     return`<div class="cart-card">
       <div class="cart-card-img">${imgHtml}</div>
       <div class="cart-card-body">
@@ -357,7 +362,7 @@ function renderCheckoutItems(){
   let total=0;
   const html=cart.map((item,i)=>{
     total+=item.priceNum*item.qty;
-    const imgHtml=item.image?`<img src="${cloudinaryEnhance(item.image)}" alt="${item.name}">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;">👗</div>';
+    const imgHtml=item.image?`<img src="${cloudinaryCard(item.image)}" alt="${item.name}" loading="lazy">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;">👗</div>';
     return`<div class="co-card">
       <div class="co-card-img">${imgHtml}</div>
       <div class="co-card-body">
