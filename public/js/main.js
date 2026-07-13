@@ -1,10 +1,10 @@
 const API_URL='/api/products';
 
-// Standardize every image to 9:16, cropping to fill (g_auto keeps the subject).
-// q_auto+f_auto let Cloudinary serve compressed WebP/AVIF for fast loads.
+// Standardize every image to a 3:4 crop. c_fill (default center gravity) is a
+// core feature on all Cloudinary plans; q_auto+f_auto serve compressed WebP/AVIF.
 function cldTransform(url,w,h){
   if(!url||!url.includes('res.cloudinary.com'))return url;
-  return url.replace('/upload/','/upload/c_fill,g_auto,w_'+w+',h_'+h+',e_sharpen,q_auto,f_auto/');
+  return url.replace('/upload/','/upload/c_fill,w_'+w+',h_'+h+',q_auto,f_auto/');
 }
 function cloudinaryEnhance(url){ return cldTransform(url,900,1200); }  // detail / large
 function cloudinaryCard(url){ return cldTransform(url,600,800); }      // grid + cart thumbnails
@@ -166,7 +166,7 @@ function renderDetailGallery(){
   var thumbsEl=document.getElementById('detailThumbs');
   if(detailImgs.length>1){
     thumbsEl.style.display='flex';
-    thumbsEl.innerHTML=detailImgs.map(function(url,i){return '<div class="detail-thumb '+(i===0?'active':'')+'" onclick="setDetailImg('+i+')"><img src="'+cloudinaryThumb(url)+'" loading="lazy" alt=""></div>';}).join('');
+    thumbsEl.innerHTML=detailImgs.map(function(url,i){return '<div class="detail-thumb '+(i===0?'active':'')+'" onclick="setDetailImg('+i+')"><img src="'+cloudinaryThumb(url)+'" loading="lazy" alt="" onerror="this.onerror=null;this.src=\''+url+'\'"></div>';}).join('');
   }else{thumbsEl.innerHTML='';thumbsEl.style.display='none';}
 }
 function selectDetailColor(i){
@@ -314,7 +314,7 @@ function renderCart(){
   let total=0;
   c.innerHTML=cart.map((item,i)=>{
     total+=item.priceNum*item.qty;
-    const imgHtml=item.image?`<img src="${cloudinaryCard(item.image)}" alt="${item.name}" loading="lazy">`:'<div style="width:100%;height:100%;background:var(--grey-ultra);display:flex;align-items:center;justify-content:center;font-size:24px;">👗</div>';
+    const imgHtml=item.image?`<img src="${cloudinaryCard(item.image)}" alt="${item.name}" loading="lazy" onerror="this.onerror=null;this.src='${item.image}'">`:'<div style="width:100%;height:100%;background:var(--grey-ultra);display:flex;align-items:center;justify-content:center;font-size:24px;">👗</div>';
     return`<div class="cart-card">
       <div class="cart-card-img">${imgHtml}</div>
       <div class="cart-card-body">
@@ -362,7 +362,7 @@ function renderCheckoutItems(){
   let total=0;
   const html=cart.map((item,i)=>{
     total+=item.priceNum*item.qty;
-    const imgHtml=item.image?`<img src="${cloudinaryCard(item.image)}" alt="${item.name}" loading="lazy">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;">👗</div>';
+    const imgHtml=item.image?`<img src="${cloudinaryCard(item.image)}" alt="${item.name}" loading="lazy" onerror="this.onerror=null;this.src='${item.image}'">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;">👗</div>';
     return`<div class="co-card">
       <div class="co-card-img">${imgHtml}</div>
       <div class="co-card-body">
