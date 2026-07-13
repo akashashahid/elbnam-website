@@ -6,9 +6,9 @@ function cldTransform(url,w,h){
   if(!url||!url.includes('res.cloudinary.com'))return url;
   return url.replace('/upload/','/upload/c_fill,g_auto,w_'+w+',h_'+h+',e_sharpen,q_auto,f_auto/');
 }
-function cloudinaryEnhance(url){ return cldTransform(url,810,1440); }  // detail / large
-function cloudinaryCard(url){ return cldTransform(url,540,960); }      // grid + cart thumbnails
-function cloudinaryThumb(url){ return cldTransform(url,180,320); }     // detail thumbnail strip
+function cloudinaryEnhance(url){ return cldTransform(url,900,1200); }  // detail / large
+function cloudinaryCard(url){ return cldTransform(url,600,800); }      // grid + cart thumbnails
+function cloudinaryThumb(url){ return cldTransform(url,180,240); }     // detail thumbnail strip
 // First image for a product: legacy main image, else the first color's first image.
 function firstProductImage(p){
   if(p.images&&p.images.length)return p.images[0];
